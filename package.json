@@ -1,0 +1,11 @@
+{
+  "name": "fluxora",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "scripts": {
+    "build": "turbo build",
+    "dev:web": "pnpm --filter @fluxora/web dev",
+    "dev:api": "dotnet watch --project services/api/Api",
+    "dev:worker": "dotnet watch --project services/worker/Worker"
+  }
+}
