@@ -1,7 +1,7 @@
 namespace Api.DTOs.Auth;
 
 /// <summary>
-/// Réponse d'authentification standard contenant les tokens et les infos utilisateur.
+/// Standard authentication response containing tokens and user information.
 /// </summary>
 public class AuthResponse
 {

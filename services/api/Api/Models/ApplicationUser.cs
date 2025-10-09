@@ -3,7 +3,7 @@ namespace Api.Models;
 using Microsoft.AspNetCore.Identity;
 
 /// <summary>
-/// Utilisateur de l'application avec des propriétés personnalisées
+/// Application user with custom properties
 /// </summary>
 public class ApplicationUser : IdentityUser
 {
@@ -13,6 +13,6 @@ public class ApplicationUser : IdentityUser
     public DateTime? LastLoginAt { get; set; }
     public bool IsActive { get; set; } = true;
 
-    // Lien avec Keycloak
+    // Link with Keycloak
     public string? KeycloakUserId { get; set; }
 }

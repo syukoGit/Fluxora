@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 /// <summary>
-/// Contrôleur d'authentification.
-/// Proxifie les appels à Keycloak pour masquer l'infrastructure sous-jacente.
+/// Authentication controller.
+/// Proxies calls to Keycloak to hide the underlying infrastructure.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -20,12 +20,12 @@ public class AuthController(
     private readonly ILogger<AuthController> _logger = logger;
 
     /// <summary>
-    /// Authentifie un utilisateur et retourne un token JWT.
+    /// Authenticates a user and returns a JWT token.
     /// </summary>
-    /// <param name="request">Les identifiants de l'utilisateur.</param>
-    /// <response code="200">Authentification réussie, token retourné.</response>
-    /// <response code="400">Requête invalide.</response>
-    /// <response code="401">Identifiants incorrects.</response>
+    /// <param name="request">The user's credentials.</param>
+    /// <response code="200">Authentication successful, token returned.</response>
+    /// <response code="400">Invalid request.</response>
+    /// <response code="401">Incorrect credentials.</response>
     [HttpPost("login")]
     [ProducesResponseType(typeof(KeycloakTokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,12 +55,12 @@ public class AuthController(
     }
 
     /// <summary>
-    /// Rafraîchit un access token expiré en utilisant un refresh token.
+    /// Refreshes an expired access token using a refresh token.
     /// </summary>
-    /// <param name="request">Le refresh token.</param>
-    /// <response code="200">Token rafraîchi avec succès.</response>
-    /// <response code="400">Requête invalide.</response>
-    /// <response code="401">Refresh token invalide ou expiré.</response>
+    /// <param name="request">The refresh token.</param>
+    /// <response code="200">Token refreshed successfully.</response>
+    /// <response code="400">Invalid request.</response>
+    /// <response code="401">Invalid or expired refresh token.</response>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(KeycloakTokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -90,11 +90,11 @@ public class AuthController(
     }
 
     /// <summary>
-    /// Déconnecte l'utilisateur en révoquant son refresh token.
+    /// Logs out the user by revoking their refresh token.
     /// </summary>
-    /// <param name="request">Le refresh token à révoquer.</param>
-    /// <response code="200">Déconnexion réussie.</response>
-    /// <response code="400">Requête invalide.</response>
+    /// <param name="request">The refresh token to revoke.</param>
+    /// <response code="200">Logout successful.</response>
+    /// <response code="400">Invalid request.</response>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -116,10 +116,10 @@ public class AuthController(
     }
 
     /// <summary>
-    /// Retourne les informations d'authentification.
-    /// L'authentification se fait exclusivement via Keycloak.
+    /// Returns authentication information.
+    /// Authentication is handled exclusively via Keycloak.
     /// </summary>
-    /// <response code="200">Informations sur le système d'authentification.</response>
+    /// <response code="200">Information about the authentication system.</response>
     [HttpGet("info")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult GetAuthInfo()
@@ -138,10 +138,10 @@ public class AuthController(
     }
 
     /// <summary>
-    /// Retourne les informations de l'utilisateur actuellement authentifié.
+    /// Returns information about the currently authenticated user.
     /// </summary>
-    /// <response code="200">Informations utilisateur.</response>
-    /// <response code="401">Non authentifié.</response>
+    /// <response code="200">User information.</response>
+    /// <response code="401">Not authenticated.</response>
     [HttpGet("me")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]

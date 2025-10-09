@@ -12,41 +12,41 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ===== Configuration de la base de données PostgreSQL =====
+// ===== PostgreSQL Database Configuration =====
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ===== Configuration d'ASP.NET Identity =====
+// ===== ASP.NET Identity Configuration =====
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
-    // Configuration des mots de passe
+    // Password configuration
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
 
-    // Configuration des utilisateurs
+    // User configuration
     options.User.RequireUniqueEmail = true;
 
-    // Configuration du verrouillage de compte
+    // Account lockout configuration
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 
-    // Configuration de la connexion
+    // Sign-in configuration
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedPhoneNumber = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ===== Configuration de l'authentification avec Keycloak (JWT) =====
+// ===== Authentication Configuration with Keycloak (JWT) =====
 var keycloakAuthority = builder.Configuration["Keycloak:Authority"];
 var keycloakAudience = builder.Configuration["Keycloak:Audience"];
 var requireHttpsMetadata = builder.Configuration.GetValue<bool>("Keycloak:RequireHttpsMetadata");
 
-// Configurer JWT comme schéma par défaut
+// Configure JWT as default scheme
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -93,12 +93,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ===== Configuration de l'autorisation =====
+// ===== Authorization Configuration =====
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Administrator"))
     .AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Administrator"));
 
-// ===== Configuration CORS =====
+// ===== CORS Configuration =====
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -119,7 +119,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new() { Title = "Fluxora API", Version = "v1" });
 
-    // Configuration pour l'authentification JWT dans Swagger
+    // Configuration for JWT authentication in Swagger
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -146,17 +146,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Ajout des contrôleurs
+// Add controllers
 builder.Services.AddControllers();
 
-// ===== Enregistrement des services applicatifs =====
-// HttpClient pour Keycloak avec configuration de base
+// ===== Application Services Registration =====
+// HttpClient for Keycloak with base configuration
 builder.Services.AddHttpClient<IKeycloakService, KeycloakService>();
 
-// Service de validation et provisionnement des utilisateurs JWT
+// JWT user validation and provisioning service
 builder.Services.AddScoped<IJwtTokenValidationService, JwtTokenValidationService>();
 
-// ===== Enregistrement de la transformation des claims Keycloak =====
+// ===== Keycloak Claims Transformation Registration =====
 builder.Services.AddScoped<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
 
 var app = builder.Build();
@@ -179,20 +179,20 @@ if (app.Environment.IsDevelopment())
         .ExcludeFromDescription();
 }
 
-// Activer CORS
+// Enable CORS
 app.UseCors("AllowAll");
 
-// Activer l'authentification et l'autorisation
+// Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Désactivé en développement pour éviter les problèmes avec les tokens
+// Disabled in development to avoid issues with tokens
 // app.UseHttpsRedirection();
 
-// Mapper les contrôleurs
+// Map controllers
 app.MapControllers();
 
-// ========= Seed des rôles de base =========
+// ========= Seed base roles =========
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -210,7 +210,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Erreur lors du seed des rôles");
+        logger.LogError(ex, "Error during role seeding");
     }
 }
 

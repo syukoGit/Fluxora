@@ -1,7 +1,7 @@
 namespace Api.DTOs;
 
 /// <summary>
-/// Informations de l'utilisateur renvoyées au client.
+/// User information returned to the client.
 /// </summary>
 public class UserDto
 {

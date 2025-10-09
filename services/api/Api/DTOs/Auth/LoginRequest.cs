@@ -3,7 +3,7 @@ namespace Api.DTOs.Auth;
 using System.ComponentModel.DataAnnotations;
 
 /// <summary>
-/// Requête de connexion utilisateur.
+/// User login request.
 /// </summary>
 public class LoginRequest
 {

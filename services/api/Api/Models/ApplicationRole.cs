@@ -3,7 +3,7 @@ namespace Api.Models;
 using Microsoft.AspNetCore.Identity;
 
 /// <summary>
-/// Rôle de l'application avec des propriétés personnalisées
+/// Application role with custom properties
 /// </summary>
 public class ApplicationRole : IdentityRole
 {

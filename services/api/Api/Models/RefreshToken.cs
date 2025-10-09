@@ -1,7 +1,7 @@
 namespace Api.Models;
 
 /// <summary>
-/// Modèle pour stocker les refresh tokens
+/// Model for storing refresh tokens
 /// </summary>
 public class RefreshToken
 {

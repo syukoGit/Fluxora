@@ -3,7 +3,7 @@ namespace Api.DTOs.Auth;
 using System.Text.Json.Serialization;
 
 /// <summary>
-/// Réponse de token depuis Keycloak.
+/// Token response from Keycloak.
 /// </summary>
 public class KeycloakTokenResponse
 {
@@ -33,7 +33,7 @@ public class KeycloakTokenResponse
 }
 
 /// <summary>
-/// Requête de connexion.
+/// Login request.
 /// </summary>
 public class LoginRequestDto
 {
@@ -42,7 +42,7 @@ public class LoginRequestDto
 }
 
 /// <summary>
-/// Requête de rafraîchissement de token.
+/// Token refresh request.
 /// </summary>
 public class RefreshTokenRequestDto
 {
@@ -50,7 +50,7 @@ public class RefreshTokenRequestDto
 }
 
 /// <summary>
-/// Requête de déconnexion.
+/// Logout request.
 /// </summary>
 public class LogoutRequestDto
 {

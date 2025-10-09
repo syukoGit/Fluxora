@@ -5,8 +5,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 
 /// <summary>
-/// Transforme les claims Keycloak pour extraire les rôles du claim realm_access
-/// et les ajouter comme claims de rôle standard ASP.NET Core
+/// Transforms Keycloak claims to extract roles from the realm_access claim
+/// and add them as standard ASP.NET Core role claims
 /// </summary>
 public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransformation> logger) : IClaimsTransformation
 {
@@ -14,23 +14,23 @@ public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransf
 
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        // Créer une nouvelle identité clonée
+        // Create a new cloned identity
         var claimsIdentity = (ClaimsIdentity) principal.Identity!;
 
-        // Vérifier si les rôles ont déjà été transformés
+        // Check if roles have already been transformed
         if (claimsIdentity.HasClaim(c => c.Type == "roles_transformed"))
         {
             return Task.FromResult(principal);
         }
 
-        // Récupérer le claim realm_access
+        // Get the realm_access claim
         var realmAccessClaim = claimsIdentity.FindFirst("realm_access");
 
         if (realmAccessClaim != null)
         {
             try
             {
-                // Parser le JSON pour extraire les rôles
+                // Parse the JSON to extract roles
                 var realmAccess = JsonDocument.Parse(realmAccessClaim.Value);
 
                 if (realmAccess.RootElement.TryGetProperty("roles", out var rolesElement))
@@ -41,7 +41,7 @@ public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransf
 
                     foreach (var role in roles)
                     {
-                        // Ajouter chaque rôle comme claim standard
+                        // Add each role as a standard claim
                         claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role!));
                     }
                 }
@@ -52,7 +52,7 @@ public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransf
             }
         }
 
-        // Marquer la transformation comme effectuée
+        // Mark the transformation as completed
         claimsIdentity.AddClaim(new Claim("roles_transformed", "true"));
 
         return Task.FromResult(principal);
