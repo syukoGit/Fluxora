@@ -49,7 +49,7 @@ $pgReady = $false
 
 while (-not $pgReady -and $retryCount -lt $maxRetries) {
     try {
-        $result = docker exec fluxora-postgres pg_isready -U postgres 2>&1
+        _ = docker exec fluxora-postgres pg_isready -U postgres 2>&1
         if ($LASTEXITCODE -eq 0) {
             $pgReady = $true
             Write-Host "✅ PostgreSQL is ready" -ForegroundColor Green
@@ -78,7 +78,7 @@ $maxRetries = 12
 
 while (-not $keycloakReady -and $retryCount -lt $maxRetries) {
     try {
-        $response = Invoke-WebRequest -Uri "http://localhost:8080/health/ready" -Method Get -TimeoutSec 5 -ErrorAction SilentlyContinue
+        $response = Invoke-WebRequest -Uri "http://localhost:8080/" -Method Get -TimeoutSec 5 -ErrorAction SilentlyContinue
         if ($response.StatusCode -eq 200) {
             $keycloakReady = $true
             Write-Host "✅ Keycloak is ready" -ForegroundColor Green
