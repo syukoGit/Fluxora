@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Api.Configuration;
 using Api.Data;
 using Api.Infrastructure;
 using Api.Models;
@@ -11,6 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ===== Configuration Binding =====
+var keycloakSettings = new KeycloakSettings();
+builder.Configuration.GetSection("Keycloak").Bind(keycloakSettings);
+builder.Services.AddSingleton(keycloakSettings);
 
 // ===== PostgreSQL Database Configuration =====
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
