@@ -21,4 +21,9 @@ public interface IKeycloakService
     /// Revokes a refresh token.
     /// </summary>
     Task<bool> LogoutAsync(string refreshToken);
+
+    /// <summary>
+    /// Registers a new user in Keycloak.
+    /// </summary>
+    Task<bool> RegisterAsync(string email, string username, string password, string? firstName, string? lastName);
 }

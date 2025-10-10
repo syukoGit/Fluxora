@@ -55,6 +55,72 @@ public class AuthController(
     }
 
     /// <summary>
+    /// Registers a new user account and automatically logs them in.
+    /// </summary>
+    /// <param name="request">The new user registration information.</param>
+    /// <response code="201">User registered successfully and authentication token returned.</response>
+    /// <response code="400">Invalid request or user already exists.</response>
+    /// <response code="503">Service unavailable.</response>
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(KeycloakTokenResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            // 1. Enregistrer l'utilisateur dans Keycloak
+            var success = await _keycloakService.RegisterAsync(
+                request.Email,
+                request.UserName,
+                request.Password,
+                request.FirstName,
+                request.LastName);
+
+            if (!success)
+            {
+                return BadRequest(new { message = "Failed to register user." });
+            }
+
+            // 2. Authentifier automatiquement l'utilisateur
+            try
+            {
+                var tokenResponse = await _keycloakService.LoginAsync(request.Email, request.Password);
+                _logger.LogInformation("User registered and auto-logged in: {Email}", request.Email);
+
+                return StatusCode(StatusCodes.Status201Created, tokenResponse);
+            }
+            catch (Exception loginEx)
+            {
+                // Si l'auto-login échoue, l'utilisateur est créé mais devra se logger manuellement
+                _logger.LogWarning(loginEx, "User registered but auto-login failed for: {Email}", request.Email);
+
+                return StatusCode(StatusCodes.Status201Created, new
+                {
+                    message = "User registered successfully. Please log in.",
+                    email = request.Email
+                });
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "Registration failed for user: {Email}", request.Email);
+
+            if (ex.Message.Contains("already exists"))
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
     /// Refreshes an expired access token using a refresh token.
     /// </summary>
     /// <param name="request">The refresh token.</param>
@@ -129,6 +195,7 @@ public class AuthController(
             message = "Authentication is handled by the API. Use /api/auth/login to obtain a JWT token.",
             endpoints = new
             {
+                register = "/api/auth/register",
                 login = "/api/auth/login",
                 refresh = "/api/auth/refresh",
                 logout = "/api/auth/logout",

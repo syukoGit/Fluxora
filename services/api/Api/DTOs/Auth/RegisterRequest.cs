@@ -9,8 +9,12 @@ public class RegisterRequest
 {
     [Required]
     [EmailAddress]
-    [MaxLength(256)]
+    [MaxLength(100)]
     public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(25)]
+    public string UserName { get; set; } = string.Empty;
 
     [Required]
     [MinLength(8, ErrorMessage = "Password must contain at least 8 characters.")]
@@ -20,9 +24,9 @@ public class RegisterRequest
     [Compare("Password", ErrorMessage = "Passwords do not match.")]
     public string ConfirmPassword { get; set; } = string.Empty;
 
-    [MaxLength(100)]
+    [MaxLength(25)]
     public string? FirstName { get; set; }
 
-    [MaxLength(100)]
+    [MaxLength(25)]
     public string? LastName { get; set; }
 }
