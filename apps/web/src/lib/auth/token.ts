@@ -152,7 +152,7 @@ export const tokenService = {
     const expirationTime = decoded.exp * 1000;
     const currentTime = Date.now();
 
-    return expirationTime - currentTime < 0;
+    return currentTime >= expirationTime;
   },
 
   /**
