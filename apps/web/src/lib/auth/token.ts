@@ -169,7 +169,7 @@ export const tokenService = {
 
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
-      console.log('Unable to decode the token');
+      console.error('Unable to decode the token');
       return null;
     }
 
