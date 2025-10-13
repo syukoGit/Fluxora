@@ -10,12 +10,12 @@ public interface IKeycloakService
     /// <summary>
     /// Authenticates a user with Keycloak and returns a token.
     /// </summary>
-    Task<KeycloakTokenResponse> LoginAsync(string username, string password);
+    Task<KeycloakTokenResponseDto> LoginAsync(string username, string password);
 
     /// <summary>
     /// Refreshes an access token using a refresh token.
     /// </summary>
-    Task<KeycloakTokenResponse> RefreshTokenAsync(string refreshToken);
+    Task<KeycloakTokenResponseDto> RefreshTokenAsync(string refreshToken);
 
     /// <summary>
     /// Revokes a refresh token.

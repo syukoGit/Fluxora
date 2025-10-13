@@ -27,7 +27,7 @@ public class AuthController(
     /// <response code="400">Invalid request.</response>
     /// <response code="401">Incorrect credentials.</response>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(KeycloakTokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(KeycloakTokenResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
@@ -62,7 +62,7 @@ public class AuthController(
     /// <response code="400">Invalid request or user already exists.</response>
     /// <response code="503">Service unavailable.</response>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(KeycloakTokenResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(KeycloakTokenResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
@@ -128,7 +128,7 @@ public class AuthController(
     /// <response code="400">Invalid request.</response>
     /// <response code="401">Invalid or expired refresh token.</response>
     [HttpPost("refresh")]
-    [ProducesResponseType(typeof(KeycloakTokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(KeycloakTokenResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
