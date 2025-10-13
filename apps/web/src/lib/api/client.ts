@@ -171,10 +171,13 @@ export const apiClient = {
       const errorData = await response.json().catch((parseError) => {
         // Log the parsing error for debugging
         console.error('Failed to parse error response JSON:', parseError);
-        return {
+        const errorObj: { error: string; parseError?: string } = {
           error: 'Failed to parse response JSON',
-          parseError: parseError instanceof Error ? parseError.message : String(parseError),
         };
+        if (process.env.NODE_ENV === 'development') {
+          errorObj.parseError = parseError instanceof Error ? parseError.message : String(parseError);
+        }
+        return errorObj;
       });
       throw new Error(
         errorData.message ||
