@@ -37,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Check if token exists and is valid
       if (tokenService.isAccessTokenExpired()) {
         if (!tokenService.isRefreshTokenExpired()) {
-          console.log('Access token expired, attempting to refresh...');
           await authApi.refreshToken();
         }
 
