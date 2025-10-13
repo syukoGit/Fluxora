@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Api.Configuration;
 using Api.Data;
 using Api.Infrastructure;
-using Api.Models;
 using Api.Services.JwtTokenValidation;
 using Api.Services.Keycloak;
 using Microsoft.AspNetCore.Authentication;
@@ -22,30 +21,7 @@ builder.Services.AddSingleton(keycloakSettings);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ===== ASP.NET Identity Configuration =====
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-{
-    // Password configuration
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-
-    // User configuration
-    options.User.RequireUniqueEmail = true;
-
-    // Account lockout configuration
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.AllowedForNewUsers = true;
-
-    // Sign-in configuration
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+// Identity storage is delegated to Keycloak; no ASP.NET Identity registration
 
 // ===== Authentication Configuration with Keycloak (JWT) =====
 var keycloakAuthority = builder.Configuration["Keycloak:Authority"];
@@ -100,9 +76,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ===== Authorization Configuration =====
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Administrator"))
-    .AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Administrator"));
+builder.Services.AddAuthorization();
 
 // ===== CORS Configuration =====
 builder.Services.AddCors(options =>
@@ -198,26 +172,6 @@ app.UseAuthorization();
 // Map controllers
 app.MapControllers();
 
-// ========= Seed base roles =========
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-        string[] roles = ["User", "Administrator"];
-        foreach (var roleName in roles)
-        {
-            if (!await roleManager.RoleExistsAsync(roleName))
-            {
-                await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error during role seeding");
-    }
-}
+// No local role seeding; roles are managed in Keycloak
 
 app.Run();
