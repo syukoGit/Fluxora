@@ -35,10 +35,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStatus('loading');
 
       // Check if token exists and is valid
-      if (!tokenService.isTokenValid()) {
-        setStatus('unauthenticated');
-        setUser(null);
-        return;
+      if (tokenService.isAccessTokenExpired()) {
+        if (!tokenService.isRefreshTokenExpired()) {
+          console.log('Access token expired, attempting to refresh...');
+          await authApi.refreshToken();
+        }
+
+        if (tokenService.isAccessTokenExpired()) {
+          console.log('Token refresh failed or access token still expired.');
+          setStatus('unauthenticated');
+          setUser(null);
+          return;
+        }
       }
 
       // Retrieve user information from the token

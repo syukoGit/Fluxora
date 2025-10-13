@@ -7,8 +7,8 @@ import { User } from './types';
 
 const TOKEN_KEY = 'fluxora_auth_token';
 const REFRESH_TOKEN_KEY = 'fluxora_refresh_token';
-
-const BUFFER_TIME = 5 * 60 * 1000;
+const TOKEN_EXPIRY_KEY = 'fluxora_token_expiry';
+const REFRESH_TOKEN_EXPIRY_KEY = 'fluxora_refresh_token_expiry';
 
 export interface DecodedToken {
   sub: string; // User ID
@@ -23,9 +23,11 @@ export const tokenService = {
   /**
    * Save the JWT token to localStorage
    */
-  setToken(token: string): void {
+  setToken(token: string, expiresIn: number): void {
     if (typeof window !== 'undefined') {
       localStorage.setItem(TOKEN_KEY, token);
+      const expiryTime = Date.now() + expiresIn * 1000;
+      localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
     }
   },
 
@@ -46,15 +48,19 @@ export const tokenService = {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(TOKEN_EXPIRY_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_EXPIRY_KEY);
     }
   },
 
   /**
    * Save the refresh token
    */
-  setRefreshToken(token: string): void {
+  setRefreshToken(token: string, refreshExpiresIn: number): void {
     if (typeof window !== 'undefined') {
       localStorage.setItem(REFRESH_TOKEN_KEY, token);
+      const expiryTime = Date.now() + refreshExpiresIn * 1000;
+      localStorage.setItem(REFRESH_TOKEN_EXPIRY_KEY, expiryTime.toString());
     }
   },
 
@@ -66,6 +72,50 @@ export const tokenService = {
       return localStorage.getItem(REFRESH_TOKEN_KEY);
     }
     return null;
+  },
+
+  /**
+   * Get token expiry timestamp
+   */
+  getTokenExpiry(): number | null {
+    if (typeof window !== 'undefined') {
+      const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+      return expiry ? parseInt(expiry, 10) : null;
+    }
+    return null;
+  },
+
+  /**
+   * Get refresh token expiry timestamp
+   */
+  getRefreshTokenExpiry(): number | null {
+    if (typeof window !== 'undefined') {
+      const expiry = localStorage.getItem(REFRESH_TOKEN_EXPIRY_KEY);
+      return expiry ? parseInt(expiry, 10) : null;
+    }
+    return null;
+  },
+
+  /**
+   * Check if access token is expired or will expire soon (with buffer time)
+   */
+  isAccessTokenExpired(): boolean {
+    const expiry = this.getTokenExpiry();
+    if (!expiry) {
+      // If no expiry is stored, fall back to JWT decoding
+      const token = this.getToken();
+      return token ? this.isTokenExpired(token) : true;
+    }
+    return Date.now() >= expiry;
+  },
+
+  /**
+   * Check if refresh token is expired
+   */
+  isRefreshTokenExpired(): boolean {
+    const expiry = this.getRefreshTokenExpiry();
+    if (!expiry) return true;
+    return Date.now() >= expiry;
   },
 
   /**
@@ -103,15 +153,7 @@ export const tokenService = {
     const expirationTime = decoded.exp * 1000;
     const currentTime = Date.now();
 
-    return expirationTime - currentTime < BUFFER_TIME;
-  },
-
-  /**
-   * Check if the token is valid (exists and is not expired)
-   */
-  isTokenValid(): boolean {
-    const token = this.getToken();
-    return !token ? false : !this.isTokenExpired(token);
+    return expirationTime - currentTime < 0;
   },
 
   /**
@@ -121,9 +163,8 @@ export const tokenService = {
     const token = this.getToken();
     if (!token) return null;
 
-    if (this.isTokenExpired(token)) {
+    if (this.isAccessTokenExpired()) {
       this.removeToken();
-      console.log('Token expired');
       return null;
     }
 

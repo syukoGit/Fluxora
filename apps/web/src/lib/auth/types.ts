@@ -15,6 +15,16 @@ export interface AuthResponse {
   user: User;
 }
 
+/**
+ * Token response from Keycloak
+ */
+export interface KeycloakTokenResponse {
+  access_token: string;
+  expires_in: number;
+  refresh_expires_in: number;
+  refresh_token: string;
+}
+
 export interface LoginCredentials {
   username: string;
   password: string;

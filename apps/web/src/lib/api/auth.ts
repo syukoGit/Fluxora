@@ -4,6 +4,7 @@ import type {
   AuthResponse,
   LoginCredentials,
   RegisterCredentials,
+  KeycloakTokenResponse,
 } from '../auth/types';
 
 export const authApi = {
@@ -11,33 +12,22 @@ export const authApi = {
    * Login user with username and password
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await apiClient.fetch('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+    const response: KeycloakTokenResponse = await apiClient.fetch(
+      '/auth/login',
+      {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      }
+    );
 
-    // Save tokens
-    if (response.access_token) {
-      tokenService.setToken(response.access_token);
-    }
+    // Save tokens with expiry information
+    tokenService.setToken(response.access_token, response.expires_in);
+    tokenService.setRefreshToken(
+      response.refresh_token,
+      response.refresh_expires_in
+    );
 
-    if (response.refresh_token) {
-      tokenService.setRefreshToken(response.refresh_token);
-    }
-
-    const token = tokenService.getToken();
-    const refreshToken = tokenService.getRefreshToken();
-    const user = tokenService.getUserFromToken();
-
-    if (!token || !refreshToken || !user) {
-      throw new Error('Failed to retrieve authentication tokens');
-    }
-
-    return {
-      token,
-      refreshToken,
-      user,
-    };
+    return returnAuthResponse();
   },
 
   /**
@@ -59,32 +49,22 @@ export const authApi = {
    * Register a new user
    */
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    const response = await apiClient.fetch('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+    const response: KeycloakTokenResponse = await apiClient.fetch(
+      '/auth/register',
+      {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      }
+    );
 
-    // Save tokens
-    if (response.access_token) {
-      tokenService.setToken(response.access_token);
-    }
-    if (response.refresh_token) {
-      tokenService.setRefreshToken(response.refresh_token);
-    }
+    // Save tokens with expiry information
+    tokenService.setToken(response.access_token, response.expires_in);
+    tokenService.setRefreshToken(
+      response.refresh_token,
+      response.refresh_expires_in
+    );
 
-    const token = tokenService.getToken();
-    const refreshToken = tokenService.getRefreshToken();
-    const user = tokenService.getUserFromToken();
-
-    if (!token || !refreshToken || !user) {
-      throw new Error('Failed to retrieve authentication tokens');
-    }
-
-    return {
-      token,
-      refreshToken,
-      user,
-    };
+    return returnAuthResponse();
   },
 
   /**
@@ -96,16 +76,22 @@ export const authApi = {
       throw new Error('No refresh token available');
     }
 
-    const response = await apiClient.fetch('/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    });
+    const response: KeycloakTokenResponse = await apiClient.fetch(
+      '/auth/refresh',
+      {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+      }
+    );
 
-    if (response.token) {
-      tokenService.setToken(response.token);
-    }
+    // Save new tokens with expiry information
+    tokenService.setToken(response.access_token, response.expires_in);
+    tokenService.setRefreshToken(
+      response.refresh_token,
+      response.refresh_expires_in
+    );
 
-    return response;
+    return returnAuthResponse();
   },
 
   /**
@@ -117,3 +103,19 @@ export const authApi = {
     });
   },
 };
+
+function returnAuthResponse(): AuthResponse {
+  const token = tokenService.getToken();
+  const refreshToken = tokenService.getRefreshToken();
+  const user = tokenService.getUserFromToken();
+
+  if (!token || !refreshToken || !user) {
+    throw new Error('Failed to retrieve authentication tokens');
+  }
+
+  return {
+    token,
+    refreshToken,
+    user,
+  };
+}
