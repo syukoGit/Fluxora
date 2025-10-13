@@ -1,10 +1,10 @@
 import { tokenService } from '../auth/token';
 import type { KeycloakTokenResponse } from '../auth/types';
 
-const API_BASE_URL = process.env.PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 if (!API_BASE_URL) {
   throw new Error(
-    'PUBLIC_API_BASE_URL environment variable must be set. Refusing to use a default localhost URL in production.'
+    'NEXT_PUBLIC_API_BASE_URL environment variable must be set. Refusing to use a default localhost URL in production.'
   );
 }
 // Flag to prevent multiple simultaneous refresh attempts
