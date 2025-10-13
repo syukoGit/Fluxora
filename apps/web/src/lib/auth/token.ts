@@ -1,6 +1,6 @@
 /**
- * Service de gestion des tokens JWT
- * Gère la persistance et la validation des tokens
+ * JWT token management service
+ * Handles the persistence and validation of tokens
  */
 
 import { User } from './types';
