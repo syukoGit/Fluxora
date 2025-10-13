@@ -1,42 +1,25 @@
 namespace Api.Data;
 
 using Api.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
-/// Database context for the application with ASP.NET Identity
+/// Minimal application database context storing only a link to Keycloak users.
 /// </summary>
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, ApplicationRole, string>(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-
-    // Custom DbSets
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<UserAccountLink> UserLinks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<ApplicationUser>(entity =>
+        builder.Entity<UserAccountLink>(entity =>
         {
             entity.ToTable("Users");
-        });
-
-        builder.Entity<ApplicationRole>(entity =>
-        {
-            entity.ToTable("Roles");
-        });
-
-        builder.Entity<RefreshToken>(entity =>
-        {
-            entity.ToTable("RefreshTokens");
-            entity.HasKey(rt => rt.Id);
-            entity.Property(rt => rt.Token).IsRequired().HasMaxLength(256);
-            entity.HasIndex(rt => rt.Token).IsUnique();
-            entity.HasOne(rt => rt.User)
-              .WithMany()
-              .HasForeignKey(rt => rt.UserId)
-              .OnDelete(DeleteBehavior.Cascade);
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.KeycloakUserId).IsRequired();
+            entity.HasIndex(x => x.KeycloakUserId).IsUnique();
         });
     }
 }

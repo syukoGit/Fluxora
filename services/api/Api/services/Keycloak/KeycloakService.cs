@@ -19,7 +19,7 @@ public class KeycloakService(
     /// <summary>
     /// Authenticates a user with Keycloak and returns a token.
     /// </summary>
-    public async Task<KeycloakTokenResponse> LoginAsync(string username, string password)
+    public async Task<KeycloakTokenResponseDto> LoginAsync(string username, string password)
     {
         _logger.LogInformation("Attempting login for user: {Username}", username);
 
@@ -57,7 +57,7 @@ public class KeycloakService(
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponse>(content, new JsonSerializerOptions
+            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponseDto>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -81,7 +81,7 @@ public class KeycloakService(
     /// <summary>
     /// Refreshes an access token using a refresh token.
     /// </summary>
-    public async Task<KeycloakTokenResponse> RefreshTokenAsync(string refreshToken)
+    public async Task<KeycloakTokenResponseDto> RefreshTokenAsync(string refreshToken)
     {
         _logger.LogInformation("Attempting to refresh token");
 
@@ -118,7 +118,7 @@ public class KeycloakService(
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponse>(content, new JsonSerializerOptions
+            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponseDto>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
@@ -307,7 +307,7 @@ public class KeycloakService(
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponse>(content, new JsonSerializerOptions
+            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponseDto>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });

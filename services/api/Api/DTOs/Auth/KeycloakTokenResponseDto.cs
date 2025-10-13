@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 /// <summary>
 /// Token response from Keycloak.
 /// </summary>
-public class KeycloakTokenResponse
+public class KeycloakTokenResponseDto
 {
     [JsonPropertyName("access_token")]
     public string AccessToken { get; set; } = string.Empty;
@@ -30,29 +30,4 @@ public class KeycloakTokenResponse
 
     [JsonPropertyName("scope")]
     public string? Scope { get; set; }
-}
-
-/// <summary>
-/// Login request.
-/// </summary>
-public class LoginRequestDto
-{
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// Token refresh request.
-/// </summary>
-public class RefreshTokenRequestDto
-{
-    public string RefreshToken { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// Logout request.
-/// </summary>
-public class LogoutRequestDto
-{
-    public string RefreshToken { get; set; } = string.Empty;
 }
