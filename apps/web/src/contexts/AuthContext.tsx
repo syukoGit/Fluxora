@@ -74,8 +74,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authApi.login(credentials);
 
-      console.log(response);
-
       setUser(response.user);
       setStatus('authenticated');
     } catch (error) {

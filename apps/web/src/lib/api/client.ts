@@ -1,7 +1,8 @@
 import { tokenService } from '../auth/token';
 import type { KeycloakTokenResponse } from '../auth/types';
 
-const API_BASE_URL = 'https://localhost:7103/api';
+const API_BASE_URL =
+  process.env.PUBLIC_API_BASE_URL || 'https://localhost:7103/api';
 
 // Flag to prevent multiple simultaneous refresh attempts
 let isRefreshing = false;

@@ -97,7 +97,7 @@ export const tokenService = {
   },
 
   /**
-   * Check if access token is expired or will expire soon (with buffer time)
+   * Check if access token is expired or will expire soon
    */
   isAccessTokenExpired(): boolean {
     const expiry = this.getTokenExpiry();
@@ -143,13 +143,12 @@ export const tokenService = {
   },
 
   /**
-   * Check if the token is expired (with a buffer time)
+   * Check if the token is expired
    */
   isTokenExpired(token: string): boolean {
     const decoded = this.decodeToken(token);
     if (!decoded) return true;
 
-    // Check if the token expires in less than 5 minutes
     const expirationTime = decoded.exp * 1000;
     const currentTime = Date.now();
 
