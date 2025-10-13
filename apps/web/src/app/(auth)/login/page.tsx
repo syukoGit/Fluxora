@@ -13,7 +13,7 @@ export default function Login() {
 
   return (
     <div className="w-full max-w-sm mx-auto mt-20">
-      <div className="relative w-full perspective-[1000px]">
+      <div className="relative w-full [perspective:1000px]">
         <div
           className={`relative [transform-style:preserve-3d] transition-transform duration-700 ${
             isFlipped ? '[transform:rotateY(180deg)]' : ''

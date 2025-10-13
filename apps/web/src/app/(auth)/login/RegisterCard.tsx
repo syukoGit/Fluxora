@@ -55,8 +55,11 @@ export default function RegisterCard({ onFlip }: RegisterCardProps) {
       // Redirect to home page after successful registration
       router.push('/');
     } catch (err) {
-      setError("Une erreur est survenue lors de l'inscription");
-      console.error("Erreur d'inscription:", err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Une erreur est survenue lors de l'inscription");
+      }
     } finally {
       setIsLoading(false);
     }
