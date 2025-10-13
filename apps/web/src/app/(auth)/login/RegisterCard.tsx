@@ -30,7 +30,7 @@ export default function RegisterCard({ onFlip }: RegisterCardProps) {
     e.preventDefault();
     setError('');
 
-    // Validation du mot de passe
+    // Password confirmation validation
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
       return;
@@ -44,8 +44,15 @@ export default function RegisterCard({ onFlip }: RegisterCardProps) {
     setIsLoading(true);
 
     try {
-      await register({ email, password, name: lastName });
-      // Redirection vers la page d'accueil après inscription réussie
+      await register({
+        lastName,
+        firstName,
+        username,
+        email,
+        password,
+        confirmPassword,
+      });
+      // Redirect to home page after successful registration
       router.push('/');
     } catch (err) {
       setError("Une erreur est survenue lors de l'inscription");
