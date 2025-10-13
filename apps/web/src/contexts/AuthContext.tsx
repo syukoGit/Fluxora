@@ -41,7 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (tokenService.isAccessTokenExpired()) {
-          console.log('Token refresh failed or access token still expired.');
           setStatus('unauthenticated');
           setUser(null);
           return;
