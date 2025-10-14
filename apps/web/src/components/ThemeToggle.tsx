@@ -19,7 +19,7 @@ export function ThemeToggle() {
     );
   }
 
-  const isDark = (theme ?? resolvedTheme) === 'dark';
+  const isDark = (resolvedTheme ?? theme) === 'dark';
 
   return (
     <Button

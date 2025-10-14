@@ -25,11 +25,10 @@ export function UserProfile() {
     <HoverCard>
       <HoverCardTrigger asChild>
         <Button
-          asChild
           variant="ghost"
           size="icon"
           aria-label="Profil"
-          className="p-4 h-12 w-12 cursor-pointer"
+          className="p-4 h-12 w-12"
         >
           <User className="size-5" aria-hidden="true" />
         </Button>
