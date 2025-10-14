@@ -15,7 +15,9 @@ import Link from 'next/link';
 export function UserProfile() {
   const { user, isAuthenticated, logout } = useAuth();
 
-  if (usePathname() === '/login' || usePathname() === '/register') {
+  const pathname = usePathname();
+
+  if (pathname === '/login' || pathname === '/register') {
     return <></>;
   }
 
@@ -58,7 +60,7 @@ export function UserProfile() {
               <Link href="/login">Se connecter</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href="/register">S'inscrire</Link>
+              <Link href="/register">S&apos;inscrire</Link>
             </Button>
           </>
         )}
