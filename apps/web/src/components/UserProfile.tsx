@@ -28,10 +28,10 @@ export function UserProfile() {
           asChild
           variant="ghost"
           size="icon"
-          aria-label="Profile"
+          aria-label="Profil"
           className="p-4 h-12 w-12 cursor-pointer"
         >
-          <User className="size-5" />
+          <User className="size-5" aria-hidden="true" />
         </Button>
       </HoverCardTrigger>
       <HoverCardContent
