@@ -11,11 +11,10 @@ export default function AppLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const { status } = useAuth();
   const router = useRouter();
-  const redirectedRef = useRef(false);
+
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      redirectedRef.current = true;
       router.replace('/login');
     }
   }, [status, router]);
