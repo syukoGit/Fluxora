@@ -48,6 +48,7 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
           onClick={onFlip}
           className="hover:underline text-sm"
           disabled={isLoading}
+          tabIndex={-1}
         >
           S'inscrire
         </button>
@@ -70,6 +71,7 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={isLoading}
+                autoFocus
               />
             </div>
             <div className="grid gap-2">
@@ -78,6 +80,7 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
                 <Link
                   href="/forgot-password"
                   className="hover:underline text-sm"
+                  tabIndex={-1}
                 >
                   Mot de passe oublié ?
                 </Link>
