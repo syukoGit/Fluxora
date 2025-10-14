@@ -49,7 +49,7 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
           className="hover:underline text-sm"
           disabled={isLoading}
         >
-          S'inscrire
+          S&apos;inscrire
         </button>
       </CardHeader>
       <CardContent>
@@ -61,7 +61,7 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
               </div>
             )}
             <div className="grid gap-2">
-              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Label htmlFor="username">Nom d&apos;utilisateur</Label>
               <Input
                 id="username"
                 type="text"
