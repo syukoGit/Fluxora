@@ -2,6 +2,7 @@
 
 import React, { createContext, useEffect, useState, useCallback } from 'react';
 import { tokenService } from '@/lib/auth/token';
+import { removeAuthCookie } from '@/lib/auth/cookies';
 import { authApi } from '@/lib/api/auth';
 import type {
   User,
@@ -123,6 +124,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleUnauthorized = () => {
       setUser(null);
       setStatus('unauthenticated');
+
+      // Remove cookie when unauthorized
+      removeAuthCookie();
     };
 
     if (typeof window !== 'undefined') {

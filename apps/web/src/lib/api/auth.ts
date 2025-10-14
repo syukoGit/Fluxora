@@ -1,5 +1,6 @@
 import { apiClient } from './client';
 import { tokenService } from '../auth/token';
+import { setAuthCookie, removeAuthCookie } from '../auth/cookies';
 import type {
   AuthResponse,
   LoginCredentials,
@@ -27,6 +28,9 @@ export const authApi = {
       response.refresh_expires_in
     );
 
+    // Sync cookie for middleware route protection
+    setAuthCookie(response.access_token, response.expires_in);
+
     return returnAuthResponse();
   },
 
@@ -42,6 +46,9 @@ export const authApi = {
     } finally {
       // Clear tokens regardless of API call success
       tokenService.removeToken();
+
+      // Remove cookie to block middleware access
+      removeAuthCookie();
     }
   },
 
@@ -63,6 +70,9 @@ export const authApi = {
       response.refresh_token,
       response.refresh_expires_in
     );
+
+    // Sync cookie for middleware route protection
+    setAuthCookie(response.access_token, response.expires_in);
 
     return returnAuthResponse();
   },
@@ -90,6 +100,9 @@ export const authApi = {
       response.refresh_token,
       response.refresh_expires_in
     );
+
+    // Sync cookie for middleware route protection
+    setAuthCookie(response.access_token, response.expires_in);
 
     return returnAuthResponse();
   },
