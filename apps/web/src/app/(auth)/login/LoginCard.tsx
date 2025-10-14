@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface LoginCardProps {
   onFlip: () => void;
@@ -21,6 +21,7 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
 
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +31,9 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
     try {
       await login({ username, password });
 
-      router.push('/');
+      // Redirect to the original destination or home
+      const redirectTo = searchParams.get('redirect') || '/';
+      router.push(redirectTo);
     } catch (err) {
       setError("Nom d'utilisateur ou mot de passe incorrect");
       console.error('Erreur de connexion:', err);

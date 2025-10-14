@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface RegisterCardProps {
   onFlip: () => void;
@@ -25,6 +25,7 @@ export default function RegisterCard({ onFlip }: RegisterCardProps) {
 
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,8 +53,10 @@ export default function RegisterCard({ onFlip }: RegisterCardProps) {
         password,
         confirmPassword,
       });
-      // Redirect to home page after successful registration
-      router.push('/');
+
+      // Redirect to the original destination or home
+      const redirectTo = searchParams.get('redirect') || '/';
+      router.push(redirectTo);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
