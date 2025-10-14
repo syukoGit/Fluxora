@@ -2,31 +2,68 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { usePathname } from 'next/navigation';
+import { User } from 'lucide-react';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import { Separator } from './ui/separator';
+import Link from 'next/link';
 
-/**
- * Example UserProfile component to display user info and logout
- */
 export function UserProfile() {
-  const { user, status, logout, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
-  if (status === 'loading') {
-    return <div>Chargement...</div>;
-  }
+  const pathname = usePathname();
 
-  if (!isAuthenticated) {
-    return <div>Non connecté</div>;
+  if (pathname === '/login' || pathname === '/register') {
+    return <></>;
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <div>
-        <p className="font-semibold">{user?.name || 'Utilisateur'}</p>
-        <p className="text-sm text-gray-600">{user?.email}</p>
-        <p>{user?.id}</p>
-      </div>
-      <Button onClick={logout} variant="outline" size="sm">
-        Déconnexion
-      </Button>
-    </div>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Profil"
+          className="p-4 h-12 w-12"
+        >
+          <User className="size-5" aria-hidden="true" />
+        </Button>
+      </HoverCardTrigger>
+      <HoverCardContent
+        side="bottom"
+        className="flex flex-col items-center gap-2 w-fit"
+      >
+        {isAuthenticated ? (
+          <>
+            <p className="font-medium">{user?.name}</p>
+            <Separator className="w-full" />
+            <Button asChild variant="outline" size="sm" className="w-full">
+              <Link href="/profile">Mon profil</Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={logout}
+              className="w-full"
+            >
+              Se déconnecter
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button asChild variant="outline" size="sm" className="w-full">
+              <Link href="/login">Se connecter</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="w-full">
+              <Link href="/register">S&apos;inscrire</Link>
+            </Button>
+          </>
+        )}
+      </HoverCardContent>
+    </HoverCard>
   );
 }

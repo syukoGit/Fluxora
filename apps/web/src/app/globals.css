@@ -12,7 +12,7 @@
   --popover-foreground: 0 0% 14.5%;
   --primary: 0 0% 20.5%;
   --primary-foreground: 0 0% 98.5%;
-  --secondary: 0 0% 97%;
+  --secondary: 0 0% 77%;
   --secondary-foreground: 0 0% 20.5%;
   --muted: 0 0% 97%;
   --muted-foreground: 0 0% 55.6%;
@@ -38,7 +38,7 @@
 }
 
 .dark {
-  --background: 0 0% 14.5%;
+  --background: 0 0% 12.94%;
   --foreground: 0 0% 98.5%;
   --card: 0 0% 20.5%;
   --card-foreground: 0 0% 98.5%;
@@ -46,7 +46,7 @@
   --popover-foreground: 0 0% 98.5%;
   --primary: 0 0% 92.2%;
   --primary-foreground: 0 0% 20.5%;
-  --secondary: 0 0% 26.9%;
+  --secondary: 0 0% 7.06%;
   --secondary-foreground: 0 0% 98.5%;
   --muted: 0 0% 26.9%;
   --muted-foreground: 0 0% 70.8%;

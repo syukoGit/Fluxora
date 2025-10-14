@@ -149,7 +149,7 @@ export const apiClient = {
             ...options,
             headers,
           });
-        } catch (error) {
+        } catch {
           // Refresh failed, clear tokens and notify
           tokenService.removeToken();
           if (typeof window !== 'undefined') {
@@ -175,14 +175,17 @@ export const apiClient = {
           error: 'Failed to parse response JSON',
         };
         if (process.env.NODE_ENV === 'development') {
-          errorObj.parseError = parseError instanceof Error ? parseError.message : String(parseError);
+          errorObj.parseError =
+            parseError instanceof Error
+              ? parseError.message
+              : String(parseError);
         }
         return errorObj;
       });
       throw new Error(
         errorData.message ||
-        errorData.error ||
-        `API request failed with status ${response.status}`
+          errorData.error ||
+          `API request failed with status ${response.status}`
       );
     }
 

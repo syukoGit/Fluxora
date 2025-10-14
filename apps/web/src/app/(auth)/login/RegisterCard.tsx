@@ -109,7 +109,7 @@ export default function RegisterCard({ onFlip }: RegisterCardProps) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="register-username">Nom d'utilisateur</Label>
+              <Label htmlFor="register-username">Nom d&apos;utilisateur</Label>
               <Input
                 id="register-username"
                 type="text"
