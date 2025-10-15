@@ -10,6 +10,7 @@
     "dev:worker": "dotnet watch --project services/worker/Worker"
   },
   "devDependencies": {
+    "turbo": "^2.5.8",
     "concurrently": "^9.2.1"
   }
 }
