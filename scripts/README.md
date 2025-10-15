@@ -59,9 +59,11 @@ Properly stops all Docker services (PostgreSQL, Keycloak, pgAdmin).
 # 2. Configure Keycloak (follow KEYCLOAK_SETUP.md)
 # Create realm, client, roles, etc.
 
-# 3. Start API
-cd services/api/Api
-dotnet run
+# 3. Install dependencies
+pnpm install
+
+# 4. Start API and Web app together
+pnpm run dev
 ```
 
 ### Daily use
@@ -72,9 +74,12 @@ docker-compose start
 # Or use the full script
 .\scripts\init-dev.ps1
 
-# Start API
-cd services/api/Api
-dotnet run
+# Start both API and Web app
+pnpm run dev
+
+# Or start services individually
+pnpm run dev:api  # API only
+pnpm run dev:web  # Web app only
 
 # Stop at end of day
 docker-compose stop

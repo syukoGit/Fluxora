@@ -4,11 +4,13 @@
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "turbo build",
+    "dev": "concurrently \"pnpm run dev:api\" \"pnpm run dev:web\" --names \"api,web\" --prefix-colors \"blue,green\"",
     "dev:web": "pnpm --filter ./apps/web dev",
     "dev:api": "dotnet watch --project services/api/Api",
     "dev:worker": "dotnet watch --project services/worker/Worker"
   },
   "devDependencies": {
     "turbo": "^2.5.8"
+    "concurrently": "^9.2.1"
   }
 }
