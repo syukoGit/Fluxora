@@ -7,5 +7,8 @@
     "dev:web": "pnpm --filter ./apps/web dev",
     "dev:api": "dotnet watch --project services/api/Api",
     "dev:worker": "dotnet watch --project services/worker/Worker"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8"
   }
 }
