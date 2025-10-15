@@ -14,9 +14,12 @@ export interface DecodedToken {
   sub: string; // User ID
   email: string;
   name?: string;
+  preferred_username?: string;
   exp: number; // Expiration timestamp
   iat: number; // Issued at timestamp
-  roles?: string[];
+  realm_access?: {
+    roles: string[];
+  };
 }
 
 export const tokenService = {
@@ -173,11 +176,17 @@ export const tokenService = {
       return null;
     }
 
+    // Extract roles from Keycloak realm_access
+    const roles: string[] = [];
+    if (decodedToken.realm_access?.roles) {
+      roles.push(...decodedToken.realm_access.roles);
+    }
+
     return {
       id: decodedToken.sub,
       email: decodedToken.email,
       ...(decodedToken.name && { name: decodedToken.name }),
-      ...(decodedToken.roles && { roles: decodedToken.roles }),
+      ...(roles.length > 0 && { roles }),
     };
   },
 };

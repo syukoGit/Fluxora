@@ -1,41 +1,20 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import {
+  isPublicRoute,
+  findRouteConfig,
+  hasRequiredRoles,
+} from './lib/auth/route-config';
+import { extractRoles, isTokenExpired } from './lib/auth/jwt-edge';
 
 /**
  * Next.js Middleware for route protection
  *
  * This middleware runs BEFORE page rendering to:
  * - Block access to protected routes if not authenticated
- * - Redirect to /login when necessary
+ * - Check role requirements for protected routes
+ * - Redirect to /login or /forbidden when necessary
  */
-
-// Public routes accessible without authentication
-const PUBLIC_ROUTES = [
-  '/login',
-  '/register',
-  '/unauthorized',
-  '/forbidden',
-  '/', // Public homepage
-];
-
-// Protected routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/auth-test'];
-
-/**
- * Check if a route is public
- */
-function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
-}
-
-/**
- * Check if a route is protected
- */
-function isProtectedRoute(pathname: string): boolean {
-  return PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
-}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -49,22 +28,58 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Get authentication token from cookie (set during login)
-  const authToken = request.cookies.get('fluxora_auth_token')?.value;
-
   // If route is public, allow access
   if (isPublicRoute(pathname)) {
     return NextResponse.next();
   }
 
-  // If route is protected and no token, redirect to /login
-  if (isProtectedRoute(pathname) && !authToken) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname); // Redirect after login
-    return NextResponse.redirect(loginUrl);
+  // Get authentication token from cookie (set during login)
+  const authToken = request.cookies.get('fluxora_auth_token')?.value;
+
+  // Find route configuration
+  const routeConfig = findRouteConfig(pathname);
+
+  // If route is protected but no config found, it's a catch-all authenticated route
+  if (!routeConfig && !isPublicRoute(pathname)) {
+    // Require authentication for undefined routes (default behavior)
+    if (!authToken) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
   }
 
-  // Allow access for all other routes
+  // If route has config, it's protected
+  if (routeConfig) {
+    // Check authentication
+    if (!authToken) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Check if token is expired
+    if (isTokenExpired(authToken)) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      loginUrl.searchParams.set('reason', 'expired');
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Extract user roles from token
+    const userRoles = extractRoles(authToken);
+
+    // Check role requirements
+    if (!hasRequiredRoles(userRoles, routeConfig)) {
+      // User is authenticated but doesn't have required roles
+      const forbiddenUrl = new URL('/forbidden', request.url);
+      forbiddenUrl.searchParams.set('route', pathname);
+      return NextResponse.redirect(forbiddenUrl);
+    }
+  }
+
+  // Allow access
   return NextResponse.next();
 }
 
