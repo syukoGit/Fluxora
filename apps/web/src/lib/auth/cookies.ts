@@ -16,7 +16,9 @@ export function setAuthCookie(token: string, expiresIn: number): void {
   const expires = new Date(Date.now() + expiresIn * 1000).toUTCString();
 
   // Create cookie with security settings
-  document.cookie = `${COOKIE_NAME}=${token}; path=/; max-age=${maxAge}; expires=${expires}; SameSite=Lax`;
+  const isProduction = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production';
+  const secureFlag = isProduction ? '; Secure' : '';
+  document.cookie = `${COOKIE_NAME}=${token}; path=/; max-age=${maxAge}; expires=${expires}; SameSite=Lax${secureFlag}`;
 }
 
 /**
