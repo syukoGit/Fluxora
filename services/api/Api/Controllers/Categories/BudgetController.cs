@@ -103,6 +103,6 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
         _dbContext.Set<SubCategory>().Add(subCategory);
         _dbContext.SaveChanges();
 
-        return CreatedAtAction(nameof(GetCategories), new { id = subCategory.Id }, subCategory.ToDto());
+        return CreatedAtAction(nameof(GetCategory), new { id = subCategory.Id }, subCategory.ToDto());
     }
 }
