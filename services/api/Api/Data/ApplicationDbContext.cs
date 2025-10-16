@@ -45,6 +45,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).IsRequired();
             entity.HasIndex(x => new { x.Name, x.CategoryId, x.UserId }).IsUnique();
+            entity.HasIndex(x => new { x.Name, x.CategoryId }).IsUnique().HasFilter("\"UserId\" IS NULL");
 
             // Relationship with Category (cascade delete)
             entity.HasOne<Category>()
