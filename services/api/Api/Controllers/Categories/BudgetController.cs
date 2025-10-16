@@ -63,6 +63,7 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
         }
 
         var category = _dbContext.Set<Category>()
+                                 .AsNoTracking()
                                  .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
                                  .FirstOrDefault(c => c.Id == id);
 
