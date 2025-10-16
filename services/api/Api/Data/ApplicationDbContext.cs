@@ -58,7 +58,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasOne<User>()
                   .WithMany()
                   .HasForeignKey(x => x.UserId)
-                  .HasPrincipalKey(u => u.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasData(DefaultCategories.GetSubCategories());
