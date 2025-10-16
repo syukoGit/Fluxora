@@ -103,7 +103,7 @@ namespace Api.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000013"),
-                            Name = "Rembousement emprunt"
+                            Name = "Remboursement emprunt"
                         },
                         new
                         {
