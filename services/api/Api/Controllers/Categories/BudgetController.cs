@@ -1,6 +1,7 @@
 namespace Api.Controllers.Categories;
 
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Api.Data;
 using Api.DTOs.Budget;
 using Api.Extensions;
@@ -79,8 +80,10 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
     [Authorize]
     [HttpPost("Categories")]
     [ProducesResponseType(typeof(CategoryDto), 201)]
-    [ProducesResponseType(403)]
-    public IActionResult CreateCategory([FromBody] CreateSubCategoryDto createSubCategoryDto)
+    [ProducesResponseType(400)]
+    [ProducesResponseType(typeof(ForbidResult), 403)]
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> CreateCategory([FromBody] CreateSubCategoryDto createSubCategoryDto)
     {
         Guid userId;
 
@@ -95,6 +98,19 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
             return Forbid();
         }
 
+        if (!await _dbContext.Set<Category>().AsNoTracking().AnyAsync(c => c.Id == createSubCategoryDto.CategoryId))
+        {
+            return BadRequest("Invalid CategoryId");
+        }
+
+        if (await _dbContext.Set<SubCategory>().AsNoTracking().AnyAsync(sc =>
+                sc.Name == createSubCategoryDto.Name &&
+                sc.CategoryId == createSubCategoryDto.CategoryId &&
+                (sc.UserId == userId || sc.UserId == null)))
+        {
+            return Conflict("A sub-category with the same name already exists in this category.");
+        }
+
         var subCategory = new SubCategory
         {
             Name = createSubCategoryDto.Name,
@@ -102,8 +118,8 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
             UserId = userId
         };
 
-        _dbContext.Set<SubCategory>().Add(subCategory);
-        _dbContext.SaveChanges();
+        await _dbContext.Set<SubCategory>().AddAsync(subCategory);
+        await _dbContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetCategory), new { id = subCategory.Id }, subCategory.ToDto());
     }
