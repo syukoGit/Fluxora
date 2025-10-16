@@ -5,24 +5,29 @@ using Api.Models.Budget;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
-/// Minimal application database context storing only a link to Keycloak users.
+/// Application database context.
+/// User authentication is delegated to Keycloak, but we maintain a User table
+/// for referential integrity and cascade deletion of user-related data.
 /// </summary>
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public DbSet<UserAccountLink> UserLinks { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<SubCategory> SubCategories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<UserAccountLink>(entity =>
+        // User configuration
+        builder.Entity<User>(entity =>
         {
             entity.ToTable("Users");
-            entity.HasKey(x => x.Id);
-            entity.Property(x => x.KeycloakUserId).IsRequired();
-            entity.HasIndex(x => x.KeycloakUserId).IsUnique();
+            entity.HasKey(x => x.UserId);
+            entity.Property(x => x.UserId).IsRequired();
         });
 
+        // Category configuration
         builder.Entity<Category>(entity =>
         {
             entity.ToTable("Categories");
@@ -33,20 +38,27 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasData(DefaultCategories.GetCategories());
         });
 
+        // SubCategory configuration
         builder.Entity<SubCategory>(entity =>
         {
             entity.ToTable("SubCategories");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).IsRequired();
             entity.HasIndex(x => new { x.Name, x.CategoryId, x.UserId }).IsUnique();
+
+            // Relationship with Category (cascade delete)
             entity.HasOne<Category>()
-                .WithMany(c => c.SubCategories)
-                .HasForeignKey(x => x.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne<UserAccountLink>()
-                .WithMany()
-                .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                  .WithMany(c => c.SubCategories)
+                  .HasForeignKey(x => x.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationship with User (cascade delete when user is deleted)
+            // UserId references Users.UserId (which is the Keycloak user ID as Guid)
+            entity.HasOne<User>()
+                  .WithMany()
+                  .HasForeignKey(x => x.UserId)
+                  .HasPrincipalKey(u => u.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasData(DefaultCategories.GetSubCategories());
         });

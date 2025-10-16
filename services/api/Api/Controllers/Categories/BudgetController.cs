@@ -26,7 +26,8 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
 
         try
         {
-            userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found"));
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found");
+            userId = Guid.Parse(userIdString);
         }
         catch (Exception)
         {
@@ -52,7 +53,8 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
 
         try
         {
-            userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found"));
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found");
+            userId = Guid.Parse(userIdString);
         }
         catch (Exception)
         {
@@ -82,7 +84,8 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
 
         try
         {
-            userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found"));
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found");
+            userId = Guid.Parse(userIdString);
         }
         catch (Exception ex)
         {
