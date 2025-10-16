@@ -35,6 +35,7 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
         }
 
         var categories = _dbContext.Set<Category>()
+                                   .AsNoTracking()
                                    .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
                                    .Transform(c => c.ToDto())
                                    .ToList();
