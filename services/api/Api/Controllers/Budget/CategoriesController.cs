@@ -1,4 +1,4 @@
-namespace Api.Controllers.Categories;
+namespace Api.Controllers.Budget;
 
 using System.Security.Claims;
 using System.Threading.Tasks;
