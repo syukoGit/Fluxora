@@ -4,210 +4,212 @@ using System.Text.Json;
 using Api.Configuration;
 using Api.DTOs.Auth;
 
+/// <inheritdoc />
 /// <summary>
 /// Service to manage authentication with Keycloak via HTTP.
 /// </summary>
-public class KeycloakService(
-    HttpClient httpClient,
-    KeycloakSettings keycloakSettings,
-    ILogger<KeycloakService> logger) : IKeycloakService
+public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSettings, ILogger<KeycloakService> logger)
+    : IKeycloakService
 {
-    private readonly HttpClient _httpClient = httpClient;
-    private readonly KeycloakSettings _keycloakSettings = keycloakSettings;
-    private readonly ILogger<KeycloakService> _logger = logger;
-
+    /// <inheritdoc />
     /// <summary>
     /// Authenticates a user with Keycloak and returns a token.
     /// </summary>
     public async Task<KeycloakTokenResponseDto> LoginAsync(string username, string password)
     {
-        _logger.LogInformation("Attempting login for user: {Username}", username);
+        logger.LogInformation("Attempting login for user: {Username}", username);
 
-        var tokenEndpoint = $"{_keycloakSettings.Authority}/protocol/openid-connect/token";
+        var tokenEndpoint = $"{keycloakSettings.Authority}/protocol/openid-connect/token";
 
         var requestData = new Dictionary<string, string>
         {
-            ["client_id"] = _keycloakSettings.AuthClientId,
+            ["client_id"] = keycloakSettings.AuthClientId,
             ["username"] = username,
             ["password"] = password,
-            ["grant_type"] = "password"
+            ["grant_type"] = "password",
         };
 
-        if (!string.IsNullOrEmpty(_keycloakSettings.AuthClientSecret))
+        if (!string.IsNullOrEmpty(keycloakSettings.AuthClientSecret))
         {
-            requestData["client_secret"] = _keycloakSettings.AuthClientSecret;
+            requestData["client_secret"] = keycloakSettings.AuthClientSecret;
         }
 
         var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
         {
-            Content = new FormUrlEncodedContent(requestData)
+            Content = new FormUrlEncodedContent(requestData),
         };
 
         try
         {
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("Login failed for user {Username}. Status: {Status}, Error: {Error}",
-                    username, response.StatusCode, errorContent);
+                string errorContent = await response.Content.ReadAsStringAsync();
+
+                logger.LogWarning("Login failed for user {Username}. Status: {Status}, Error: {Error}", username,
+                                  response.StatusCode, errorContent);
 
                 throw new UnauthorizedAccessException("Invalid username or password.");
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponseDto>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            string content = await response.Content.ReadAsStringAsync();
+
+            var tokenResponse =
+                JsonSerializer.Deserialize<KeycloakTokenResponseDto>(
+                    content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (tokenResponse == null)
             {
-                _logger.LogError("Failed to deserialize token response for user: {Username}", username);
+                logger.LogError("Failed to deserialize token response for user: {Username}", username);
                 throw new InvalidOperationException("Failed to obtain token from authentication server.");
             }
 
-            _logger.LogInformation("Login successful for user: {Username}", username);
+            logger.LogInformation("Login successful for user: {Username}", username);
             return tokenResponse;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error during login for user: {Username}", username);
+            logger.LogError(ex, "HTTP error during login for user: {Username}", username);
             throw new InvalidOperationException("Authentication server is unavailable.", ex);
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Refreshes an access token using a refresh token.
     /// </summary>
     public async Task<KeycloakTokenResponseDto> RefreshTokenAsync(string refreshToken)
     {
-        _logger.LogInformation("Attempting to refresh token");
+        logger.LogInformation("Attempting to refresh token");
 
-        var tokenEndpoint = $"{_keycloakSettings.Authority}/protocol/openid-connect/token";
+        var tokenEndpoint = $"{keycloakSettings.Authority}/protocol/openid-connect/token";
 
         var requestData = new Dictionary<string, string>
         {
-            ["client_id"] = _keycloakSettings.AuthClientId,
+            ["client_id"] = keycloakSettings.AuthClientId,
             ["refresh_token"] = refreshToken,
-            ["grant_type"] = "refresh_token"
+            ["grant_type"] = "refresh_token",
         };
 
-        if (!string.IsNullOrEmpty(_keycloakSettings.AuthClientSecret))
+        if (!string.IsNullOrEmpty(keycloakSettings.AuthClientSecret))
         {
-            requestData["client_secret"] = _keycloakSettings.AuthClientSecret;
+            requestData["client_secret"] = keycloakSettings.AuthClientSecret;
         }
 
         var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
         {
-            Content = new FormUrlEncodedContent(requestData)
+            Content = new FormUrlEncodedContent(requestData),
         };
 
         try
         {
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("Token refresh failed. Status: {Status}, Error: {Error}",
-                    response.StatusCode, errorContent);
+                string errorContent = await response.Content.ReadAsStringAsync();
+
+                logger.LogWarning("Token refresh failed. Status: {Status}, Error: {Error}", response.StatusCode,
+                                  errorContent);
 
                 throw new UnauthorizedAccessException("Invalid or expired refresh token.");
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponseDto>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            string content = await response.Content.ReadAsStringAsync();
+
+            var tokenResponse =
+                JsonSerializer.Deserialize<KeycloakTokenResponseDto>(
+                    content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (tokenResponse == null)
             {
-                _logger.LogError("Failed to deserialize token refresh response");
+                logger.LogError("Failed to deserialize token refresh response");
                 throw new InvalidOperationException("Failed to refresh token.");
             }
 
-            _logger.LogInformation("Token refresh successful");
+            logger.LogInformation("Token refresh successful");
             return tokenResponse;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error during token refresh");
+            logger.LogError(ex, "HTTP error during token refresh");
             throw new InvalidOperationException("Authentication server is unavailable.", ex);
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Revokes a refresh token (logout).
     /// </summary>
     public async Task<bool> LogoutAsync(string refreshToken)
     {
-        _logger.LogInformation("Attempting to logout (revoke refresh token)");
+        logger.LogInformation("Attempting to logout (revoke refresh token)");
 
-        var logoutEndpoint = $"{_keycloakSettings.Authority}/protocol/openid-connect/logout";
+        var logoutEndpoint = $"{keycloakSettings.Authority}/protocol/openid-connect/logout";
 
         var requestData = new Dictionary<string, string>
         {
-            ["client_id"] = _keycloakSettings.AuthClientId,
-            ["refresh_token"] = refreshToken
+            ["client_id"] = keycloakSettings.AuthClientId, ["refresh_token"] = refreshToken,
         };
 
-        if (!string.IsNullOrEmpty(_keycloakSettings.AuthClientSecret))
+        if (!string.IsNullOrEmpty(keycloakSettings.AuthClientSecret))
         {
-            requestData["client_secret"] = _keycloakSettings.AuthClientSecret;
+            requestData["client_secret"] = keycloakSettings.AuthClientSecret;
         }
 
         var request = new HttpRequestMessage(HttpMethod.Post, logoutEndpoint)
         {
-            Content = new FormUrlEncodedContent(requestData)
+            Content = new FormUrlEncodedContent(requestData),
         };
 
         try
         {
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("Logout failed. Status: {Status}, Error: {Error}",
-                    response.StatusCode, errorContent);
+                string errorContent = await response.Content.ReadAsStringAsync();
+
+                logger.LogWarning("Logout failed. Status: {Status}, Error: {Error}", response.StatusCode, errorContent);
+
                 return false;
             }
 
-            _logger.LogInformation("Logout successful");
+            logger.LogInformation("Logout successful");
             return true;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error during logout");
+            logger.LogError(ex, "HTTP error during logout");
             return false;
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Registers a new user in Keycloak.
     /// </summary>
-    public async Task<bool> RegisterAsync(string email, string username, string password, string? firstName, string? lastName)
+    public async Task<bool> RegisterAsync(string email, string username, string password, string? firstName,
+                                          string? lastName)
     {
-        _logger.LogInformation("Attempting to register user: {Email}", email);
+        logger.LogInformation("Attempting to register user: {Email}", email);
 
-        var realm = string.IsNullOrEmpty(_keycloakSettings.Realm)
-            ? _keycloakSettings.Authority.Split("/realms/").Last()
-            : _keycloakSettings.Realm;
+        string realm = string.IsNullOrEmpty(keycloakSettings.Realm)
+                           ? keycloakSettings.Authority.Split("/realms/").Last()
+                           : keycloakSettings.Realm;
 
         // Pour créer un utilisateur, nous devons obtenir un token admin
-        var adminToken = await GetAdminTokenAsync();
+        string? adminToken = await GetAdminTokenAsync();
 
         if (string.IsNullOrEmpty(adminToken))
         {
-            _logger.LogError("Failed to obtain admin token for user registration");
+            logger.LogError("Failed to obtain admin token for user registration");
             throw new InvalidOperationException("Unable to register user at this time.");
         }
 
         // Extraire l'URL de base de Keycloak (sans /realms/xxx)
-        var keycloakBaseUrl = _keycloakSettings.Authority.Replace($"/realms/{realm}", "");
+        string keycloakBaseUrl = keycloakSettings.Authority.Replace($"/realms/{realm}", "");
         var createUserEndpoint = $"{keycloakBaseUrl}/admin/realms/{realm}/users";
 
         var userData = new
@@ -218,36 +220,27 @@ public class KeycloakService(
             lastName = lastName ?? string.Empty,
             enabled = true,
             emailVerified = false,
-            credentials = new[]
-            {
-                new
-                {
-                    type = "password",
-                    value = password,
-                    temporary = false
-                }
-            }
+            credentials = new[] { new { type = "password", value = password, temporary = false } },
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, createUserEndpoint)
         {
-            Content = new StringContent(
-                JsonSerializer.Serialize(userData),
-                System.Text.Encoding.UTF8,
-                "application/json")
+            Content = new StringContent(JsonSerializer.Serialize(userData), System.Text.Encoding.UTF8,
+                                        "application/json"),
         };
 
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
 
         try
         {
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("User registration failed for {Email}. Status: {Status}, Error: {Error}",
-                    email, response.StatusCode, errorContent);
+                string errorContent = await response.Content.ReadAsStringAsync();
+
+                logger.LogWarning("User registration failed for {Email}. Status: {Status}, Error: {Error}", email,
+                                  response.StatusCode, errorContent);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
                 {
@@ -257,12 +250,12 @@ public class KeycloakService(
                 throw new InvalidOperationException("Failed to register user.");
             }
 
-            _logger.LogInformation("User registration successful for: {Email}", email);
+            logger.LogInformation("User registration successful for: {Email}", email);
             return true;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error during user registration for: {Email}", email);
+            logger.LogError(ex, "HTTP error during user registration for: {Email}", email);
             throw new InvalidOperationException("Authentication server is unavailable.", ex);
         }
     }
@@ -273,50 +266,52 @@ public class KeycloakService(
     /// </summary>
     private async Task<string?> GetAdminTokenAsync()
     {
-        if (string.IsNullOrEmpty(_keycloakSettings.UserManagerClientId)
-            || string.IsNullOrEmpty(_keycloakSettings.UserManagerClientSecret))
+        if (string.IsNullOrEmpty(keycloakSettings.UserManagerClientId)
+         || string.IsNullOrEmpty(keycloakSettings.UserManagerClientSecret))
         {
-            _logger.LogError("User management client credentials not configured");
+            logger.LogError("User management client credentials not configured");
             return null;
         }
 
-        var tokenEndpoint = $"{_keycloakSettings.Authority}/protocol/openid-connect/token";
+        var tokenEndpoint = $"{keycloakSettings.Authority}/protocol/openid-connect/token";
 
         var requestData = new Dictionary<string, string>
         {
-            ["client_id"] = _keycloakSettings.UserManagerClientId,
-            ["client_secret"] = _keycloakSettings.UserManagerClientSecret,
-            ["grant_type"] = "client_credentials"
+            ["client_id"] = keycloakSettings.UserManagerClientId,
+            ["client_secret"] = keycloakSettings.UserManagerClientSecret,
+            ["grant_type"] = "client_credentials",
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
         {
-            Content = new FormUrlEncodedContent(requestData)
+            Content = new FormUrlEncodedContent(requestData),
         };
 
         try
         {
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to obtain service account token. Status: {Status}, Error: {Error}",
-                    response.StatusCode, errorContent);
+                string errorContent = await response.Content.ReadAsStringAsync();
+
+                logger.LogError("Failed to obtain service account token. Status: {Status}, Error: {Error}",
+                                response.StatusCode, errorContent);
+
                 return null;
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<KeycloakTokenResponseDto>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            string content = await response.Content.ReadAsStringAsync();
+
+            var tokenResponse =
+                JsonSerializer.Deserialize<KeycloakTokenResponseDto>(
+                    content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return tokenResponse?.AccessToken;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error while obtaining service account token");
+            logger.LogError(ex, "HTTP error while obtaining service account token");
             return null;
         }
     }

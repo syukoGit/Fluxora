@@ -1,7 +1,7 @@
 namespace Api.Models;
 
 /// <summary>
-/// Represents a user in the application. 
+/// Represents a user in the application.
 /// This table serves as a reference point for cascade deletion of user data.
 /// All user identity and authentication is managed by Keycloak.
 /// The UserId is the same as the Keycloak user ID (sub claim).
