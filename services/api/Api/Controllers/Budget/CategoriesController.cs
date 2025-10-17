@@ -2,7 +2,6 @@ namespace Api.Controllers.Budget;
 
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Api.Data;
 using Api.DTOs.Budget;
 using Api.Extensions;
 using Api.Models.Budget;
@@ -12,11 +11,8 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/budget/[controller]")]
-public class CategoriesController(ApplicationDbContext dbContext, ILogger<CategoriesController> logger) : ControllerBase
+public class CategoriesController(DbContext dbContext, ILogger<CategoriesController> logger) : ControllerBase
 {
-    private readonly ApplicationDbContext _dbContext = dbContext;
-    private readonly ILogger<CategoriesController> _logger = logger;
-
     [Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(List<CategoryDto>), 200)]
@@ -27,7 +23,9 @@ public class CategoriesController(ApplicationDbContext dbContext, ILogger<Catego
 
         try
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found");
+            string userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                               ?? throw new Exception("User ID not found");
+
             userId = Guid.Parse(userIdString);
         }
         catch (Exception)
@@ -35,11 +33,11 @@ public class CategoriesController(ApplicationDbContext dbContext, ILogger<Catego
             return Forbid();
         }
 
-        var categories = _dbContext.Set<Category>()
-                                   .AsNoTracking()
-                                   .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
-                                   .Transform(c => c.ToDto())
-                                   .ToList();
+        var categories = dbContext.Set<Category>()
+                                  .AsNoTracking()
+                                  .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
+                                  .Transform(c => c.ToDto())
+                                  .ToList();
 
         return Ok(categories);
     }
@@ -55,19 +53,23 @@ public class CategoriesController(ApplicationDbContext dbContext, ILogger<Catego
 
         try
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found");
+            string userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                               ?? throw new Exception("User ID not found");
+
             userId = Guid.Parse(userIdString);
         }
         catch (Exception)
         {
-            _logger.LogError("Error occurred while retrieving category with ID {CategoryId}. User ID not found in claims.", id);
+            logger.LogError("Error occurred while retrieving category with ID {CategoryId}.", id);
+            logger.LogError("User ID could not be determined from the token.");
+
             return Forbid();
         }
 
-        var category = _dbContext.Set<Category>()
-                                 .AsNoTracking()
-                                 .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
-                                 .FirstOrDefault(c => c.Id == id);
+        var category = dbContext.Set<Category>()
+                                .AsNoTracking()
+                                .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
+                                .FirstOrDefault(c => c.Id == id);
 
         if (category == null)
         {
@@ -89,37 +91,39 @@ public class CategoriesController(ApplicationDbContext dbContext, ILogger<Catego
 
         try
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found");
+            string userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                               ?? throw new Exception("User ID not found");
+
             userId = Guid.Parse(userIdString);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error occurred while creating subcategory. Message: {Message}", ex.Message);
+            logger.LogError("Error occurred while creating subcategory. Message: {Message}", ex.Message);
+
             return Forbid();
         }
 
-        if (!await _dbContext.Set<Category>().AsNoTracking().AnyAsync(c => c.Id == createSubCategoryDto.CategoryId))
+        if (!await dbContext.Set<Category>().AsNoTracking().AnyAsync(c => c.Id == createSubCategoryDto.CategoryId))
         {
             return BadRequest("Invalid CategoryId");
         }
 
-        if (await _dbContext.Set<SubCategory>().AsNoTracking().AnyAsync(sc =>
-                sc.Name == createSubCategoryDto.Name &&
-                sc.CategoryId == createSubCategoryDto.CategoryId &&
-                (sc.UserId == userId || sc.UserId == null)))
+        if (await dbContext.Set<SubCategory>()
+                           .AsNoTracking()
+                           .AnyAsync(sc => sc.Name == createSubCategoryDto.Name
+                                        && sc.CategoryId == createSubCategoryDto.CategoryId
+                                        && (sc.UserId == userId || sc.UserId == null)))
         {
             return Conflict("A sub-category with the same name already exists in this category.");
         }
 
         var subCategory = new SubCategory
         {
-            Name = createSubCategoryDto.Name,
-            CategoryId = createSubCategoryDto.CategoryId,
-            UserId = userId
+            Name = createSubCategoryDto.Name, CategoryId = createSubCategoryDto.CategoryId, UserId = userId,
         };
 
-        await _dbContext.Set<SubCategory>().AddAsync(subCategory);
-        await _dbContext.SaveChangesAsync();
+        await dbContext.Set<SubCategory>().AddAsync(subCategory);
+        await dbContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetCategory), new { id = subCategory.Id }, subCategory.ToDto());
     }
