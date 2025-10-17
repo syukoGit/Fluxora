@@ -4,6 +4,7 @@ using Api.Data;
 using Api.Infrastructure;
 using Api.Services.JwtTokenValidation;
 using Api.Services.Keycloak;
+using Api.Mapping;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -141,6 +142,9 @@ builder.Services.AddScoped<IJwtTokenValidationService, JwtTokenValidationService
 
 // ===== Keycloak Claims Transformation Registration =====
 builder.Services.AddScoped<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
+
+// ===== AutoMapper Registration =====
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 

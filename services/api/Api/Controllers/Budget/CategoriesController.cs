@@ -3,7 +3,7 @@ namespace Api.Controllers.Budget;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Api.DTOs.Budget;
-using Api.Extensions;
+using AutoMapper;
 using Api.Models.Budget;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/budget/[controller]")]
-public class CategoriesController(DbContext dbContext, ILogger<CategoriesController> logger) : ControllerBase
+public class CategoriesController(DbContext dbContext, ILogger<CategoriesController> logger, IMapperBase mapper)
+    : ControllerBase
 {
     [Authorize]
     [HttpGet]
@@ -36,7 +37,8 @@ public class CategoriesController(DbContext dbContext, ILogger<CategoriesControl
         var categories = dbContext.Set<Category>()
                                   .AsNoTracking()
                                   .Include(c => c.SubCategories.Where(sc => sc.UserId == userId || sc.UserId == null))
-                                  .Transform(c => c.ToDto())
+                                  .ToList()
+                                  .Select(mapper.Map<CategoryDto>)
                                   .ToList();
 
         return Ok(categories);
@@ -76,7 +78,7 @@ public class CategoriesController(DbContext dbContext, ILogger<CategoriesControl
             return NotFound();
         }
 
-        return Ok(category.ToDto());
+        return Ok(mapper.Map<CategoryDto>(category));
     }
 
     [Authorize]
@@ -122,9 +124,10 @@ public class CategoriesController(DbContext dbContext, ILogger<CategoriesControl
             Name = createSubCategoryDto.Name, CategoryId = createSubCategoryDto.CategoryId, UserId = userId,
         };
 
-        await dbContext.Set<SubCategory>().AddAsync(subCategory);
+        var newSubCategory = await dbContext.Set<SubCategory>().AddAsync(subCategory);
         await dbContext.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetCategory), new { id = subCategory.Id }, subCategory.ToDto());
+        return CreatedAtAction(nameof(GetCategory), new { id = newSubCategory.Entity.Id },
+                               mapper.Map<SubCategoryDto>(newSubCategory.Entity));
     }
 }
