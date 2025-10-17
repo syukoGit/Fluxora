@@ -47,14 +47,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasIndex(x => new { x.Name, x.CategoryId, x.UserId }).IsUnique();
             entity.HasIndex(x => new { x.Name, x.CategoryId }).IsUnique().HasFilter("\"UserId\" IS NULL");
 
-            // Relationship with Category (cascade delete)
             entity.HasOne<Category>()
                   .WithMany(c => c.SubCategories)
                   .HasForeignKey(x => x.CategoryId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            // Relationship with User (cascade delete when user is deleted)
-            // UserId references Users.UserId (which is the Keycloak user ID as Guid)
             entity.HasOne<User>()
                   .WithMany()
                   .HasForeignKey(x => x.UserId)
