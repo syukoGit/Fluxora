@@ -11,14 +11,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 [ApiController]
-[Route("api/[controller]")]
-public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetController> logger) : ControllerBase
+[Route("api/budget/[controller]")]
+public class CategoriesController(ApplicationDbContext dbContext, ILogger<CategoriesController> logger) : ControllerBase
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
-    private readonly ILogger<BudgetController> _logger = logger;
+    private readonly ILogger<CategoriesController> _logger = logger;
 
     [Authorize]
-    [HttpGet("Categories")]
+    [HttpGet]
     [ProducesResponseType(typeof(List<CategoryDto>), 200)]
     [ProducesResponseType(403)]
     public IActionResult GetCategories()
@@ -45,7 +45,7 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
     }
 
     [Authorize]
-    [HttpGet("Categories/{id:guid}")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(CategoryDto), 200)]
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
@@ -78,7 +78,7 @@ public class BudgetController(ApplicationDbContext dbContext, ILogger<BudgetCont
     }
 
     [Authorize]
-    [HttpPost("Categories")]
+    [HttpPost]
     [ProducesResponseType(typeof(CategoryDto), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(typeof(ForbidResult), 403)]
