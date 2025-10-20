@@ -8,10 +8,11 @@ using Api.Models.Budget;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Api.Data;
 
 [ApiController]
 [Route("api/budget/[controller]")]
-public class CategoriesController(DbContext dbContext, ILogger<CategoriesController> logger, IMapperBase mapper)
+public class CategoriesController(ApplicationDbContext dbContext, ILogger<CategoriesController> logger, IMapper mapper)
     : ControllerBase
 {
     [Authorize]

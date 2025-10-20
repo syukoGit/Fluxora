@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 /// User authentication is delegated to Keycloak, but we maintain a User table
 /// for referential integrity and cascade deletion of user-related data.
 /// </summary>
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
 
@@ -46,19 +45,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(x => x.Name).IsRequired();
             entity.HasIndex(x => new { x.Name, x.CategoryId, x.UserId }).IsUnique();
 
-            entity.HasIndex(x => new { x.Name, x.CategoryId })
-                  .IsUnique()
-                  .HasFilter("\"UserId\" IS NULL");
+            entity.HasIndex(x => new { x.Name, x.CategoryId }).IsUnique().HasFilter("\"UserId\" IS NULL");
 
             entity.HasOne<Category>()
                   .WithMany(c => c.SubCategories)
                   .HasForeignKey(x => x.CategoryId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne<User>()
-                  .WithMany()
-                  .HasForeignKey(x => x.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
 
             entity.HasData(DefaultCategories.GetSubCategories());
         });
@@ -69,24 +63,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.ToTable("FinancialTransactions");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Amount).IsRequired();
-            entity.Property(x => x.Date).IsRequired();
+            entity.Property(x => x.DateTime).IsRequired();
             entity.Property(x => x.Currency).IsRequired().HasConversion<string>();
             entity.Property(x => x.Name).IsRequired();
 
-            entity.HasOne<Category>()
-                  .WithMany()
-                  .HasForeignKey(x => x.CategoryId)
-                  .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne<Category>().WithMany().HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.SetNull);
 
             entity.HasOne<SubCategory>()
                   .WithMany()
                   .HasForeignKey(x => x.SubCategoryId)
                   .OnDelete(DeleteBehavior.SetNull);
 
-            entity.HasOne<User>()
-                  .WithMany()
-                  .HasForeignKey(x => x.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

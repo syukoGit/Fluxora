@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -130,8 +131,10 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Add controllers
-builder.Services.AddControllers();
+// Add controllers and configure JSON options to serialize enums as strings
+builder.Services.AddControllers()
+       .AddNewtonsoftJson()
+       .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 // ===== Application Services Registration =====
 // HttpClient for Keycloak with base configuration

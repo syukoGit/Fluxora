@@ -2,17 +2,13 @@ namespace Api.DTOs.Budget.FinancialTransaction;
 
 using Api.Models.Utils;
 
-public class FinancialTransactionDto
+public class CreateFinancialTransactionDto
 {
-    public Guid Id { get; set; }
-
-    public Guid UserId { get; set; }
-
     public required string Name { get; set; }
 
     public decimal Amount { get; set; }
 
-    public ECurrency Currency { get; set; }
+    public required ECurrency Currency { get; set; }
 
     public DateTime DateTime { get; set; }
 

@@ -15,5 +15,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.IsCustom, opt => opt.MapFrom(src => src.UserId.HasValue));
 
         CreateMap<FinancialTransaction, FinancialTransactionDto>();
+        CreateMap<CreateFinancialTransactionDto, FinancialTransaction>();
+        CreateMap<FinancialTransactionPatchDto, FinancialTransaction>().ReverseMap();
     }
 }
