@@ -20,11 +20,11 @@ public class GetCurrentUserTest : AuthControllerTestBase
 
         var claims = new List<Claim>
         {
-            new (ClaimTypes.NameIdentifier, userId),
-            new (ClaimTypes.Email, email),
-            new ("preferred_username", username),
-            new (ClaimTypes.GivenName, firstName),
-            new (ClaimTypes.Surname, lastName),
+            new(ClaimTypes.NameIdentifier, userId),
+            new(ClaimTypes.Email, email),
+            new("preferred_username", username),
+            new(ClaimTypes.GivenName, firstName),
+            new(ClaimTypes.Surname, lastName),
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -42,7 +42,7 @@ public class GetCurrentUserTest : AuthControllerTestBase
         var okResult = result as OkObjectResult;
         okResult.Should().NotBeNull();
 
-        okResult.Value.Should().BeEquivalentTo(new
+        var expectedUserInfo = new
         {
             keycloakUserId = userId,
             username,
@@ -50,6 +50,8 @@ public class GetCurrentUserTest : AuthControllerTestBase
             firstName,
             lastName,
             roles,
-        });
+        };
+
+        okResult.Value.Should().BeEquivalentTo(expectedUserInfo);
     }
 }

@@ -12,7 +12,7 @@ public class AuthFixture
 
     public static (string, string) InvalidCredentials => (UserName, "wrongpassword");
 
-    public static KeycloakTokenResponseDto ValidToken => new ()
+    public static KeycloakTokenResponseDto ValidToken => new()
     {
         AccessToken = "valid_access_token",
         RefreshToken = "valid_refresh_token",

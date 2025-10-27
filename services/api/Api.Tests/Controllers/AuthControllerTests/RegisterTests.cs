@@ -19,7 +19,9 @@ public class RegisterTests : AuthControllerTestBase
 
         var request = new RegisterRequest
         {
-            UserName = username, Password = password, Email = AuthFixture.UserEmail,
+            UserName = username,
+            Password = password,
+            Email = AuthFixture.UserEmail,
         };
 
         MockKeycloakService.RegisterAsync(request.UserName, request.Password, request.Email, request.FirstName,
@@ -51,7 +53,9 @@ public class RegisterTests : AuthControllerTestBase
 
         var request = new RegisterRequest
         {
-            UserName = username, Password = password, Email = AuthFixture.UserEmail,
+            UserName = username,
+            Password = password,
+            Email = AuthFixture.UserEmail,
         };
 
         Controller.ModelState.AddModelError("UserName", "The UserName field is required.");
@@ -80,7 +84,9 @@ public class RegisterTests : AuthControllerTestBase
 
         var request = new RegisterRequest
         {
-            UserName = username, Password = password, Email = AuthFixture.UserEmail,
+            UserName = username,
+            Password = password,
+            Email = AuthFixture.UserEmail,
         };
 
         MockKeycloakService.RegisterAsync(request.UserName, request.Password, request.Email, request.FirstName,
@@ -109,7 +115,9 @@ public class RegisterTests : AuthControllerTestBase
 
         var request = new RegisterRequest
         {
-            UserName = username, Password = password, Email = AuthFixture.UserEmail,
+            UserName = username,
+            Password = password,
+            Email = AuthFixture.UserEmail,
         };
 
         MockKeycloakService
@@ -138,7 +146,9 @@ public class RegisterTests : AuthControllerTestBase
 
         var request = new RegisterRequest
         {
-            UserName = username, Password = password, Email = AuthFixture.UserEmail,
+            UserName = username,
+            Password = password,
+            Email = AuthFixture.UserEmail,
         };
 
         MockKeycloakService
@@ -167,7 +177,9 @@ public class RegisterTests : AuthControllerTestBase
 
         var request = new RegisterRequest
         {
-            UserName = username, Password = password, Email = AuthFixture.UserEmail,
+            UserName = username,
+            Password = password,
+            Email = AuthFixture.UserEmail,
         };
 
         MockKeycloakService.RegisterAsync(request.UserName, request.Password, request.Email, request.FirstName,

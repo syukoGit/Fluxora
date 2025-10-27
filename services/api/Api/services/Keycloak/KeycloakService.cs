@@ -150,7 +150,8 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
 
         var requestData = new Dictionary<string, string>
         {
-            ["client_id"] = keycloakSettings.AuthClientId, ["refresh_token"] = refreshToken,
+            ["client_id"] = keycloakSettings.AuthClientId,
+            ["refresh_token"] = refreshToken,
         };
 
         if (!string.IsNullOrEmpty(keycloakSettings.AuthClientSecret))
@@ -220,7 +221,15 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
             lastName = lastName ?? string.Empty,
             enabled = true,
             emailVerified = false,
-            credentials = new[] { new { type = "password", value = password, temporary = false } },
+            credentials = new[]
+            {
+                new
+                {
+                    type = "password",
+                    value = password,
+                    temporary = false,
+                },
+            },
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, createUserEndpoint)

@@ -94,8 +94,7 @@ public class AuthController(IKeycloakService keycloakService, ILogger<AuthContro
                 var tokenResponse = await keycloakService.LoginAsync(request.UserName, request.Password);
                 logger.LogInformation("User registered and auto-logged in: {UserName}", request.UserName);
 
-                return CreatedAtAction(nameof(Login), new { userName = request.UserName, password = request.Password },
-                                       tokenResponse);
+                return CreatedAtAction(nameof(GetCurrentUser), null, tokenResponse);
             }
             catch (Exception loginEx)
             {
@@ -103,7 +102,11 @@ public class AuthController(IKeycloakService keycloakService, ILogger<AuthContro
                 logger.LogWarning(loginEx, "User registered but auto-login failed for: {UserName}", request.UserName);
 
                 return StatusCode(StatusCodes.Status201Created,
-                                  new { message = "User registered successfully. Please log in.", request.UserName });
+                                  new
+                                  {
+                                      message = "User registered successfully. Please log in.",
+                                      userName = request.UserName,
+                                  });
             }
         }
         catch (HttpRequestException ex)
