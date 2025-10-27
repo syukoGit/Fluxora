@@ -10,3 +10,11 @@ coverage/
 .turbo
 
 .vscode/
+
+# Coverage reports
+coverage/
+TestResults/
+coverage-report/
+coverage-history/
+*.coverage
+*.coveragexml

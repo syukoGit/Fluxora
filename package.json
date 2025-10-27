@@ -7,7 +7,9 @@
     "dev": "concurrently \"pnpm run dev:api\" \"pnpm run dev:web\" --names \"api,web\" --prefix-colors \"blue,green\"",
     "dev:web": "pnpm --filter ./apps/web dev",
     "dev:api": "dotnet watch --project services/api/Api",
-    "dev:worker": "dotnet watch --project services/worker/Worker"
+    "dev:worker": "dotnet watch --project services/worker/Worker",
+    "test:api": "pwsh -ExecutionPolicy Bypass -File ./scripts/api-test-with-coverage.ps1",
+    "test:api:watch": "dotnet watch test --project services/api/Api.Tests/Api.Tests.csproj"
   },
   "devDependencies": {
     "turbo": "^2.5.8",
