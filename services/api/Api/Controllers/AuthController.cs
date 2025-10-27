@@ -71,42 +71,47 @@ public class AuthController(IKeycloakService keycloakService, ILogger<AuthContro
         try
         {
             // 1. Enregistrer l'utilisateur dans Keycloak
-            bool success = await keycloakService.RegisterAsync(request.Email, request.UserName, request.Password,
-                                                               request.FirstName, request.LastName);
-
-            if (!success)
+            try
             {
-                return BadRequest(new { message = "Failed to register user." });
+                bool success = await keycloakService.RegisterAsync(request.UserName, request.Password, request.Email,
+                                                                   request.FirstName, request.LastName);
+
+                if (!success)
+                {
+                    return BadRequest(new { message = "Failed to register user." });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogError(ex, "Registration failed for user: {UserName}", request.UserName);
+
+                return BadRequest(new { message = ex.Message });
             }
 
             // 2. Authentifier automatiquement l'utilisateur
             try
             {
-                var tokenResponse = await keycloakService.LoginAsync(request.Email, request.Password);
-                logger.LogInformation("User registered and auto-logged in: {Email}", request.Email);
+                var tokenResponse = await keycloakService.LoginAsync(request.UserName, request.Password);
+                logger.LogInformation("User registered and auto-logged in: {UserName}", request.UserName);
 
-                return StatusCode(StatusCodes.Status201Created, tokenResponse);
+                return CreatedAtAction(nameof(Login), new { userName = request.UserName, password = request.Password },
+                                       tokenResponse);
             }
             catch (Exception loginEx)
             {
                 // Si l'auto-login échoue, l'utilisateur est créé mais devra se logger manuellement
-                logger.LogWarning(loginEx, "User registered but auto-login failed for: {Email}", request.Email);
+                logger.LogWarning(loginEx, "User registered but auto-login failed for: {UserName}", request.UserName);
 
                 return StatusCode(StatusCodes.Status201Created,
-                                  new
-                                  {
-                                      message = "User registered successfully. Please log in.",
-                                      email = request.Email,
-                                  });
+                                  new { message = "User registered successfully. Please log in.", request.UserName });
             }
         }
-        catch (InvalidOperationException ex)
+        catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "Registration failed for user: {Email}", request.Email);
+            logger.LogError(ex, "HTTP error during registration for user: {UserName}", request.UserName);
 
-            return ex.Message.Contains("already exists")
-                       ? BadRequest(new { message = ex.Message })
-                       : StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = ex.Message });
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                              new { message = "Authentication service is unavailable." });
         }
     }
 
@@ -166,29 +171,6 @@ public class AuthController(IKeycloakService keycloakService, ILogger<AuthContro
         return Ok(success
                       ? new { message = "Logout successful" }
                       : new { message = "Logout completed (token may have already been revoked)" });
-    }
-
-    /// <summary>
-    /// Returns authentication information.
-    /// Authentication is handled exclusively via Keycloak.
-    /// </summary>
-    /// <response code="200">Information about the authentication system.</response>
-    [HttpGet("info")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult GetAuthInfo()
-    {
-        return Ok(new
-        {
-            message = "Authentication is handled by the API. Use /api/auth/login to obtain a JWT token.",
-            endpoints = new
-            {
-                register = "/api/auth/register",
-                login = "/api/auth/login",
-                refresh = "/api/auth/refresh",
-                logout = "/api/auth/logout",
-                me = "/api/auth/me",
-            },
-        });
     }
 
     /// <summary>

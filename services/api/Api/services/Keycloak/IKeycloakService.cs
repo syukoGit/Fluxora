@@ -25,5 +25,5 @@ public interface IKeycloakService
     /// <summary>
     /// Registers a new user in Keycloak.
     /// </summary>
-    Task<bool> RegisterAsync(string email, string username, string password, string? firstName, string? lastName);
+    Task<bool> RegisterAsync(string username, string password, string email, string? firstName, string? lastName);
 }
