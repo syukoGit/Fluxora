@@ -150,7 +150,8 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
 
         var requestData = new Dictionary<string, string>
         {
-            ["client_id"] = keycloakSettings.AuthClientId, ["refresh_token"] = refreshToken,
+            ["client_id"] = keycloakSettings.AuthClientId,
+            ["refresh_token"] = refreshToken,
         };
 
         if (!string.IsNullOrEmpty(keycloakSettings.AuthClientSecret))
@@ -190,10 +191,10 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
     /// <summary>
     /// Registers a new user in Keycloak.
     /// </summary>
-    public async Task<bool> RegisterAsync(string email, string username, string password, string? firstName,
+    public async Task<bool> RegisterAsync(string username, string password, string email, string? firstName,
                                           string? lastName)
     {
-        logger.LogInformation("Attempting to register user: {Email}", email);
+        logger.LogInformation("Attempting to register user: {UserName}", username);
 
         string realm = string.IsNullOrEmpty(keycloakSettings.Realm)
                            ? keycloakSettings.Authority.Split("/realms/").Last()
@@ -220,7 +221,15 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
             lastName = lastName ?? string.Empty,
             enabled = true,
             emailVerified = false,
-            credentials = new[] { new { type = "password", value = password, temporary = false } },
+            credentials = new[]
+            {
+                new
+                {
+                    type = "password",
+                    value = password,
+                    temporary = false,
+                },
+            },
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, createUserEndpoint)
@@ -239,7 +248,7 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
             {
                 string errorContent = await response.Content.ReadAsStringAsync();
 
-                logger.LogWarning("User registration failed for {Email}. Status: {Status}, Error: {Error}", email,
+                logger.LogWarning("User registration failed for {UserName}. Status: {Status}, Error: {Error}", username,
                                   response.StatusCode, errorContent);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
@@ -250,13 +259,13 @@ public class KeycloakService(HttpClient httpClient, KeycloakSettings keycloakSet
                 throw new InvalidOperationException("Failed to register user.");
             }
 
-            logger.LogInformation("User registration successful for: {Email}", email);
+            logger.LogInformation("User registration successful for: {UserName}", username);
             return true;
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "HTTP error during user registration for: {Email}", email);
-            throw new InvalidOperationException("Authentication server is unavailable.", ex);
+            logger.LogError(ex, "HTTP error during user registration for: {UserName}", username);
+            throw new HttpRequestException("Authentication server is unavailable.", ex);
         }
     }
 
