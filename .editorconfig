@@ -151,7 +151,9 @@ resharper_space_before_new_parentheses = true
 resharper_trailing_comma_in_multiline_lists = true
 resharper_wrap_array_initializer_style = chop_if_long
 resharper_wrap_chained_binary_patterns = chop_if_long
-resharper_wrap_chained_method_calls = chop_if_long
+resharper_wrap_chained_method_calls = wrap_if_long
+resharper_csharp_indent_invocation_parms = true
+resharper_continuous_indent_multiplier = 1
 resharper_xml_keep_user_linebreaks = false
 
 # ReSharper inspection severities
@@ -519,3 +521,14 @@ resharper_xaml_possible_null_reference_exception_highlighting = warning
 
 [DTOs/**/*.cs]
 resharper_unused_member_global_highlighting = none
+
+# Conventions de nommage pour les méthodes de test
+[*Tests.cs]
+# Autoriser les underscores dans les noms de méthodes de test
+dotnet_naming_rule.test_methods_should_use_underscores.severity = none
+
+# Autoriser les méthodes de test longues
+dotnet_diagnostic.CA1707.severity = none
+
+# Autoriser les méthodes async sans suffix Async pour les tests
+dotnet_diagnostic.RCS1047.severity = none
