@@ -43,14 +43,11 @@ export const apiClient = {
       const data: KeycloakTokenResponse = await response.json();
 
       // Save new tokens with expiry information
-      if (data.access_token) {
-        tokenService.setToken(data.access_token, data.expires_in);
+      if (data.accessToken) {
+        tokenService.setToken(data.accessToken, data.expiresIn);
       }
-      if (data.refresh_token) {
-        tokenService.setRefreshToken(
-          data.refresh_token,
-          data.refresh_expires_in
-        );
+      if (data.refreshToken) {
+        tokenService.setRefreshToken(data.refreshToken, data.refreshExpiresIn);
       }
     } catch (error) {
       // If refresh fails, clear all tokens

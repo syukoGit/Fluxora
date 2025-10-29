@@ -14,7 +14,7 @@ import type {
 interface AuthContextValue {
   user: User | null;
   status: AuthStatus;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   isAuthenticated: boolean;
@@ -72,13 +72,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (credentials: LoginCredentials) => {
     try {
       const response = await authApi.login(credentials);
-
+      console.log('Login response:', response);
       setUser(response.user);
       setStatus('authenticated');
+      return true;
     } catch (error) {
+      console.error('Login error:', error);
       setStatus('unauthenticated');
       setUser(null);
-      throw error;
+      return false;
     }
   }, []);
 

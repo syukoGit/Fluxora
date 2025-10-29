@@ -19,10 +19,10 @@ export interface AuthResponse {
  * Token response from Keycloak
  */
 export interface KeycloakTokenResponse {
-  access_token: string;
-  expires_in: number;
-  refresh_expires_in: number;
-  refresh_token: string;
+  accessToken: string;
+  expiresIn: number;
+  refreshExpiresIn: number;
+  refreshToken: string;
 }
 
 export interface LoginCredentials {
