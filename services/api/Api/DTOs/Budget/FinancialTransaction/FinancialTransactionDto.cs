@@ -14,7 +14,7 @@ public class FinancialTransactionDto
 
     public ECurrency Currency { get; set; }
 
-    public DateTime DateTime { get; set; }
+    public DateTime Date { get; set; }
 
     public Guid? CategoryId { get; set; }
 

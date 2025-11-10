@@ -10,11 +10,11 @@ public class CreateFinancialTransactionDto
 
     public required ECurrency Currency { get; set; }
 
-    public DateTime DateTime { get; set; }
+    public DateTime Date { get; set; }
 
-    public Guid? CategoryId { get; set; }
+    public Guid? CategoryId { get; set; } = null;
 
-    public Guid? SubCategoryId { get; set; }
+    public Guid? SubCategoryId { get; set; } = null;
 
-    public string? Bank { get; set; }
+    public string? Bank { get; set; } = null;
 }
