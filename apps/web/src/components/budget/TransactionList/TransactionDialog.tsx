@@ -149,7 +149,7 @@ const TransactionDialog = ({ transaction, categories, open, setOpen, onSuccess }
       </DialogHeader>
       <div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='grid grid-cols-2 grid-rows-4 gap-2'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='grid grid-cols-2 auto-rows-min gap-2'>
             <FormField
               control={form.control}
               name='name'
