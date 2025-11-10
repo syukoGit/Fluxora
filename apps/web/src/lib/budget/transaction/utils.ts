@@ -1,6 +1,41 @@
 import { CategoryDto, TransactionDto, TransactionNestedMap } from './types';
 
-export function mapTransactionDtosToCategories(transactions: TransactionDto[], categories: CategoryDto[]): TransactionNestedMap {
+/**
+ * Sorts transactions by date (most recent first) and categories/subcategories alphabetically
+ */
+export function sortTransactionNestedMap(categoryMap: TransactionNestedMap): TransactionNestedMap {
+  // Sort transactions by date (most recent first) within each subcategory
+  Object.keys(categoryMap).forEach((categoryName) => {
+    Object.keys(categoryMap[categoryName]!).forEach((subCategoryName) => {
+      categoryMap[categoryName]![subCategoryName]!.sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
+    });
+  });
+
+  // Sort categories and subcategories alphabetically
+  const sortedCategoryMap: TransactionNestedMap = {};
+  const sortedCategoryNames = Object.keys(categoryMap).sort((a, b) => a.localeCompare(b));
+
+  sortedCategoryNames.forEach((categoryName) => {
+    const sortedSubCategoryNames = Object.keys(categoryMap[categoryName]!).sort((a, b) => a.localeCompare(b));
+    sortedCategoryMap[categoryName] = {};
+
+    sortedSubCategoryNames.forEach((subCategoryName) => {
+      const transactions = categoryMap[categoryName]![subCategoryName];
+      if (transactions) {
+        sortedCategoryMap[categoryName]![subCategoryName] = transactions;
+      }
+    });
+  });
+
+  return sortedCategoryMap;
+}
+
+export function mapTransactionDtosToCategories(
+  transactions: TransactionDto[],
+  categories: CategoryDto[]
+): TransactionNestedMap {
   const categoryMap: TransactionNestedMap = {};
 
   transactions.forEach((transaction) => {
@@ -15,8 +50,8 @@ export function mapTransactionDtosToCategories(transactions: TransactionDto[], c
 
       categoryMap['Uncategorized']['Uncategorized']!.push(transaction);
     } else {
-      const subCategory = category.subCategories?.find((sub) => sub.id === transaction.subCategoryId)?.name ?? 'Uncategorized';
-      console.log('Mapping transaction:', transaction, 'to category:', category.name, 'and subcategory:', transaction.subCategoryId);
+      const subCategory =
+        category.subCategories?.find((sub) => sub.id === transaction.subCategoryId)?.name ?? 'Uncategorized';
 
       if (!categoryMap[category.name]) {
         categoryMap[category.name] = {};
@@ -30,5 +65,5 @@ export function mapTransactionDtosToCategories(transactions: TransactionDto[], c
     }
   });
 
-  return categoryMap;
+  return sortTransactionNestedMap(categoryMap);
 }
