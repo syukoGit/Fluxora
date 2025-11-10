@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,7 +100,11 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Fluxora API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Fluxora API",
+        Version = "v1",
+    });
 
     // Configuration for JWT authentication in Swagger
     options.AddSecurityDefinition(
@@ -123,7 +127,8 @@ builder.Services.AddSwaggerGen(options =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme, Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer",
                 },
             },
             Array.Empty<string>()
@@ -133,8 +138,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // Add controllers and configure JSON options to serialize enums as strings
 builder.Services.AddControllers()
-       .AddNewtonsoftJson()
-       .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+       .AddNewtonsoftJson(options => { options.SerializerSettings.Converters.Add(new StringEnumConverter()); });
 
 // ===== Application Services Registration =====
 // HttpClient for Keycloak with base configuration

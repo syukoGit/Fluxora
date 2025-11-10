@@ -122,7 +122,9 @@ public class CategoriesController(ApplicationDbContext dbContext, ILogger<Catego
 
         var subCategory = new SubCategory
         {
-            Name = createSubCategoryDto.Name, CategoryId = createSubCategoryDto.CategoryId, UserId = userId,
+            Name = createSubCategoryDto.Name,
+            CategoryId = createSubCategoryDto.CategoryId,
+            UserId = userId,
         };
 
         var newSubCategory = await dbContext.Set<SubCategory>().AddAsync(subCategory);
