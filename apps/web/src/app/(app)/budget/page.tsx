@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { apiClient } from '@/lib/api/client';
 import { CategoryDto, TransactionDto } from '@/lib/budget/transaction/types';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import TransactionDialog from '@/components/budget/TransactionList/TransactionDialog';
@@ -55,9 +55,6 @@ export default function BudgetPage() {
               onSuccess={fetchTransactions}
             />
           </Dialog>
-          <Button variant='outline'>
-            <Trash2 />
-          </Button>
         </ButtonGroup>
         <TransactionList
           loading={loading}

@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Currency from '@/lib/currencies';
 import InputWithIcon from '@/components/InputWithIcon';
-import { Baseline, Landmark, LoaderCircleIcon } from 'lucide-react';
+import { Baseline, Landmark, LoaderCircleIcon, Trash2 } from 'lucide-react';
 import { CurrencyIcon } from '@/components/CurrencyIcon';
 import DatePicker from '@/components/DatePicker';
 import { createJsonPatchDocument } from '@/lib/api/jsonPatch';
@@ -60,7 +60,7 @@ const TransactionDialog = ({ transaction, categories, open, setOpen, onSuccess }
         date: transaction?.date ? new Date(transaction?.date) : new Date(),
         categoryId: transaction?.categoryId,
         subCategoryId: transaction?.subCategoryId,
-        bank: transaction?.bank,
+        bank: transaction?.bank ?? '',
       });
       previousCategoryId.current = transaction?.categoryId;
     }
@@ -123,6 +123,22 @@ const TransactionDialog = ({ transaction, categories, open, setOpen, onSuccess }
       setOpen(false);
     } catch (error) {
       console.error('Error submitting transaction form:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onDelete = async () => {
+    if (!transaction) return;
+    try {
+      setLoading(true);
+      await apiClient.fetch(`/budget/FinancialTransactions/${transaction.id}`, {
+        method: 'DELETE',
+      });
+      onSuccess?.();
+      setOpen(false);
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
     } finally {
       setLoading(false);
     }
@@ -312,13 +328,27 @@ const TransactionDialog = ({ transaction, categories, open, setOpen, onSuccess }
                 </FormItem>
               )}
             />
-            <Button type='reset' className='mt-4' variant='outline' onClick={() => setOpen(false)} disabled={loading}>
-              Annuler
-            </Button>
-            <Button type='submit' className='mt-4' disabled={loading}>
-              {loading && <LoaderCircleIcon className='animate-spin' />}
-              {updating ? 'Mettre à jour' : 'Ajouter'}
-            </Button>
+            <div className='col-span-2 mt-4 flex justify-end gap-2'>
+              <Button type='reset' variant='outline' onClick={() => setOpen(false)} disabled={loading}>
+                Annuler
+              </Button>
+              <Button type='submit' disabled={loading}>
+                {loading && <LoaderCircleIcon className='animate-spin' />}
+                {updating ? 'Mettre à jour' : 'Ajouter'}
+              </Button>
+              {transaction && (
+                <Button
+                  type='button'
+                  className='hover:bg-destructive text-destructive border-destructive'
+                  variant='outline'
+                  disabled={loading}
+                  onClick={onDelete}
+                >
+                  <Trash2 />
+                  Supprimer
+                </Button>
+              )}
+            </div>
           </form>
         </Form>
       </div>
