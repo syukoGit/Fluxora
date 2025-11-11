@@ -7,11 +7,11 @@ export default function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <main className="flex flex-col flex-1">
+    <main className='flex flex-col flex-1'>
       <Header />
-      <div className="flex flex-row flex-1">
+      <div className='flex flex-row flex-1'>
         <NavBar />
-        <div className="flex flex-col flex-1 items-center justify-center gap-8">
+        <div className='flex flex-col flex-1 items-center justify-center'>
           {children}
         </div>
       </div>

@@ -98,12 +98,12 @@ namespace Api.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000012"),
-                            Name = "Remboursements"
+                            Name = "Remboursement emprunt"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000013"),
-                            Name = "Remboursement emprunt"
+                            Name = "Remboursements"
                         },
                         new
                         {
@@ -120,6 +120,49 @@ namespace Api.Migrations
                             Id = new Guid("00000000-0000-0000-0000-000000000016"),
                             Name = "Virements"
                         });
+                });
+
+            modelBuilder.Entity("Api.Models.Budget.FinancialTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Bank")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("SubCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FinancialTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Api.Models.Budget.SubCategory", b =>
@@ -143,6 +186,10 @@ namespace Api.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("Name", "CategoryId")
+                        .IsUnique()
+                        .HasFilter("\"UserId\" IS NULL");
 
                     b.HasIndex("Name", "CategoryId", "UserId")
                         .IsUnique();
@@ -652,43 +699,43 @@ namespace Api.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000084"),
                             CategoryId = new Guid("00000000-0000-0000-0000-000000000012"),
-                            Name = "Paiements d'assurances"
+                            Name = "Résidence principale"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000085"),
                             CategoryId = new Guid("00000000-0000-0000-0000-000000000012"),
-                            Name = "Retours produits"
+                            Name = "Crédit auto"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000086"),
-                            CategoryId = new Guid("00000000-0000-0000-0000-000000000012"),
-                            Name = "Remboursements d'impôts"
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000013"),
+                            Name = "Paiements d'assurances"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000087"),
-                            CategoryId = new Guid("00000000-0000-0000-0000-000000000012"),
-                            Name = "Réclamation et Garanties"
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000013"),
+                            Name = "Retours produits"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000088"),
-                            CategoryId = new Guid("00000000-0000-0000-0000-000000000012"),
-                            Name = "Remboursement proche"
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000013"),
+                            Name = "Remboursements d'impôts"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000089"),
                             CategoryId = new Guid("00000000-0000-0000-0000-000000000013"),
-                            Name = "Résidence principale"
+                            Name = "Réclamation et Garanties"
                         },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000090"),
                             CategoryId = new Guid("00000000-0000-0000-0000-000000000013"),
-                            Name = "Crédit auto"
+                            Name = "Remboursement proche"
                         },
                         new
                         {
@@ -803,6 +850,25 @@ namespace Api.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Api.Models.Budget.FinancialTransaction", b =>
+                {
+                    b.HasOne("Api.Models.Budget.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Api.Models.Budget.SubCategory", null)
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Api.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Api.Models.Budget.SubCategory", b =>

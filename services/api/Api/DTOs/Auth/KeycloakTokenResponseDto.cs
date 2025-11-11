@@ -21,13 +21,4 @@ public class KeycloakTokenResponseDto
 
     [JsonPropertyName("token_type")]
     public string TokenType { get; set; } = "Bearer";
-
-    [JsonPropertyName("not-before-policy")]
-    public int NotBeforePolicy { get; set; }
-
-    [JsonPropertyName("session_state")]
-    public string? SessionState { get; set; }
-
-    [JsonPropertyName("scope")]
-    public string? Scope { get; set; }
 }

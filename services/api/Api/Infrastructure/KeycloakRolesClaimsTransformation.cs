@@ -4,18 +4,21 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 
+/// <inheritdoc />
 /// <summary>
 /// Transforms Keycloak claims to extract roles from the realm_access claim
 /// and add them as standard ASP.NET Core role claims
 /// </summary>
-public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransformation> logger) : IClaimsTransformation
+public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransformation> logger)
+    : IClaimsTransformation
 {
-    private readonly ILogger<KeycloakRolesClaimsTransformation> _logger = logger;
-
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         // Create a new cloned identity
-        var claimsIdentity = (ClaimsIdentity) principal.Identity!;
+        if (principal.Identity is not ClaimsIdentity claimsIdentity)
+        {
+            return Task.FromResult(principal);
+        }
 
         // Check if roles have already been transformed
         if (claimsIdentity.HasClaim(c => c.Type == "roles_transformed"))
@@ -35,20 +38,17 @@ public class KeycloakRolesClaimsTransformation(ILogger<KeycloakRolesClaimsTransf
 
                 if (realmAccess.RootElement.TryGetProperty("roles", out var rolesElement))
                 {
-                    var roles = rolesElement.EnumerateArray()
-                        .Select(r => r.GetString())
-                        .Where(r => r != null);
+                    var roles = rolesElement.EnumerateArray().Select(r => r.GetString()).Where(r => r != null);
 
-                    foreach (var role in roles)
+                    foreach (string role in roles.OfType<string>())
                     {
-                        // Add each role as a standard claim
-                        claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role!));
+                        claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
                     }
                 }
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to parse realm_access claim as JSON");
+                logger.LogError(ex, "Failed to parse realm_access claim as JSON");
             }
         }
 

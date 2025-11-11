@@ -4,10 +4,13 @@ using Api.Data;
 using Api.Infrastructure;
 using Api.Services.JwtTokenValidation;
 using Api.Services.Keycloak;
+using Api.Mapping;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,62 +20,66 @@ builder.Configuration.GetSection("Keycloak").Bind(keycloakSettings);
 builder.Services.AddSingleton(keycloakSettings);
 
 // ===== PostgreSQL Database Configuration =====
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(
+                                                        builder.Configuration
+                                                               .GetConnectionString("DefaultConnection")));
 
 // Identity storage is delegated to Keycloak; no ASP.NET Identity registration
 
 // ===== Authentication Configuration with Keycloak (JWT) =====
-var keycloakAuthority = builder.Configuration["Keycloak:Authority"];
-var keycloakAudience = builder.Configuration["Keycloak:Audience"];
+string? keycloakAuthority = builder.Configuration["Keycloak:Authority"];
+string? keycloakAudience = builder.Configuration["Keycloak:Audience"];
 var requireHttpsMetadata = builder.Configuration.GetValue<bool>("Keycloak:RequireHttpsMetadata");
 
 // Configure JWT as default scheme
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.Authority = keycloakAuthority;
-    options.RequireHttpsMetadata = requireHttpsMetadata;
-    options.MetadataAddress = builder.Configuration["Keycloak:MetadataAddress"]
-        ?? $"{keycloakAuthority}/.well-known/openid-configuration";
+       {
+           options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+           options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+           options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+       })
+       .AddJwtBearer(options =>
+       {
+           options.Authority = keycloakAuthority;
+           options.RequireHttpsMetadata = requireHttpsMetadata;
 
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = builder.Configuration.GetValue<bool>("Jwt:ValidateIssuer"),
-        ValidateAudience = builder.Configuration.GetValue<bool>("Jwt:ValidateAudience"),
-        ValidateLifetime = builder.Configuration.GetValue<bool>("Jwt:ValidateLifetime"),
-        ValidateIssuerSigningKey = builder.Configuration.GetValue<bool>("Jwt:ValidateIssuerSigningKey"),
-        ValidIssuer = keycloakAuthority,
-        ValidAudience = keycloakAudience,
-        ClockSkew = TimeSpan.Zero,
-        NameClaimType = ClaimTypes.NameIdentifier
-    };
+           options.MetadataAddress = builder.Configuration["Keycloak:MetadataAddress"]
+                                  ?? $"{keycloakAuthority}/.well-known/openid-configuration";
 
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-            {
-                context.Response.Headers.Append("Token-Expired", "true");
-            }
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = async context =>
-        {
-            var tokenValidationService = context.HttpContext.RequestServices
-                .GetRequiredService<IJwtTokenValidationService>();
-            await tokenValidationService.HandleTokenValidationAsync(context);
-        },
-        OnMessageReceived = context => Task.CompletedTask,
-        OnChallenge = context => Task.CompletedTask,
-    };
-});
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+               ValidateIssuer = builder.Configuration.GetValue<bool>("Jwt:ValidateIssuer"),
+               ValidateAudience = builder.Configuration.GetValue<bool>("Jwt:ValidateAudience"),
+               ValidateLifetime = builder.Configuration.GetValue<bool>("Jwt:ValidateLifetime"),
+               ValidateIssuerSigningKey = builder.Configuration.GetValue<bool>("Jwt:ValidateIssuerSigningKey"),
+               ValidIssuer = keycloakAuthority,
+               ValidAudience = keycloakAudience,
+               ClockSkew = TimeSpan.Zero,
+               NameClaimType = ClaimTypes.NameIdentifier,
+           };
+
+           options.Events = new JwtBearerEvents
+           {
+               OnAuthenticationFailed = context =>
+               {
+                   if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                   {
+                       context.Response.Headers.Append("Token-Expired", "true");
+                   }
+
+                   return Task.CompletedTask;
+               },
+               OnTokenValidated = async context =>
+               {
+                   var tokenValidationService = context.HttpContext.RequestServices
+                                                       .GetRequiredService<IJwtTokenValidationService>();
+
+                   await tokenValidationService.HandleTokenValidationAsync(context);
+               },
+               OnMessageReceived = _ => Task.CompletedTask,
+               OnChallenge = _ => Task.CompletedTask,
+           };
+       });
 
 // ===== Authorization Configuration =====
 builder.Services.AddAuthorization();
@@ -80,12 +87,8 @@ builder.Services.AddAuthorization();
 // ===== CORS Configuration =====
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+    options.AddPolicy(
+        "AllowAll", policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
 
 // Add services to the container.
@@ -94,39 +97,48 @@ builder.Services.AddCors(options =>
 builder.Services.AddOpenApi();
 // Register Swashbuckle (Swagger) generator so we can serve the Swagger UI
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new() { Title = "Fluxora API", Version = "v1" });
-
-    // Configuration for JWT authentication in Swagger
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-        Name = "Authorization",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
+        Title = "Fluxora API",
+        Version = "v1",
     });
 
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    // Configuration for JWT authentication in Swagger
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Description =
+                "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+        });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer",
+                },
             },
             Array.Empty<string>()
-        }
+        },
     });
 });
 
-// Add controllers
-builder.Services.AddControllers();
+// Add controllers and configure JSON options to serialize enums as strings
+builder.Services.AddControllers()
+       .AddNewtonsoftJson(options => { options.SerializerSettings.Converters.Add(new StringEnumConverter()); });
 
 // ===== Application Services Registration =====
 // HttpClient for Keycloak with base configuration
@@ -138,6 +150,9 @@ builder.Services.AddScoped<IJwtTokenValidationService, JwtTokenValidationService
 // ===== Keycloak Claims Transformation Registration =====
 builder.Services.AddScoped<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
 
+// ===== AutoMapper Registration =====
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -148,14 +163,14 @@ if (app.Environment.IsDevelopment())
 
     // Enable Swashbuckle middleware for interactive documentation
     app.UseSwagger();
+
     app.UseSwaggerUI(options =>
     {
         options.RoutePrefix = "swagger"; // UI at /swagger
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Fluxora API V1");
     });
 
-    app.MapGet("/", () => Results.Redirect("/swagger", permanent: false))
-        .ExcludeFromDescription();
+    app.MapGet("/", () => Results.Redirect("/swagger", permanent: false)).ExcludeFromDescription();
 }
 
 // Enable CORS

@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import {
-  isPublicRoute,
-  findRouteConfig,
-  hasRequiredRoles,
-} from './lib/auth/route-config';
+import { isPublicRoute, findRouteConfig, hasRequiredRoles } from './lib/auth/route-config';
 import { extractRoles, isTokenExpired } from './lib/auth/jwt-edge';
 
 /**
