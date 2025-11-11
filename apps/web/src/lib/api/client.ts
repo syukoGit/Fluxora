@@ -66,9 +66,7 @@ export const apiClient = {
   async fetch(endpoint: string, options?: RequestInit) {
     // Skip token refresh for auth endpoints to avoid circular dependencies
     const isAuthEndpoint =
-      endpoint.includes('/auth/login') ||
-      endpoint.includes('/auth/register') ||
-      endpoint.includes('/auth/refresh');
+      endpoint.includes('/auth/login') || endpoint.includes('/auth/register') || endpoint.includes('/auth/refresh');
 
     // Check if token needs refresh before making the request
     if (!isAuthEndpoint && tokenService.isAccessTokenExpired()) {
@@ -172,20 +170,13 @@ export const apiClient = {
           error: 'Failed to parse response JSON',
         };
         if (process.env.NODE_ENV === 'development') {
-          errorObj.parseError =
-            parseError instanceof Error
-              ? parseError.message
-              : String(parseError);
+          errorObj.parseError = parseError instanceof Error ? parseError.message : String(parseError);
         }
         return errorObj;
       });
-      throw new Error(
-        errorData.message ||
-          errorData.error ||
-          `API request failed with status ${response.status}`
-      );
+      throw new Error(errorData.message || errorData.error || `API request failed with status ${response.status}`);
     }
 
-    return response.json();
+    return response.json().catch(() => null);
   },
 };
