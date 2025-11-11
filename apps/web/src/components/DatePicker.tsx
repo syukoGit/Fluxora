@@ -22,6 +22,7 @@ const DatePicker = ({ value, setDate, ...props }: Props) => {
           variant='outline'
           id='date'
           className={cn('w-full h-9 flex flex-col items-stretch font-normal px-3 pr-3 pl-0', props.className)}
+          noAnimation
           {...props}
         >
           <div className='relative'>

@@ -329,7 +329,7 @@ const TransactionDialog = ({ transaction, categories, open, setOpen, onSuccess }
               )}
             />
             <div className='col-span-2 mt-4 flex justify-end gap-2'>
-              <Button type='reset' variant='outline' onClick={() => setOpen(false)} disabled={loading}>
+              <Button type='reset' variant='secondary' onClick={() => setOpen(false)} disabled={loading}>
                 Annuler
               </Button>
               <Button type='submit' disabled={loading}>
@@ -339,13 +339,15 @@ const TransactionDialog = ({ transaction, categories, open, setOpen, onSuccess }
               {transaction && (
                 <Button
                   type='button'
-                  className='hover:bg-destructive text-destructive border-destructive'
+                  className='hover:bg-destructive text-destructive border-destructive group gap-0 hover:gap-2 transition-all duration-300 ease-in-out'
                   variant='outline'
                   disabled={loading}
                   onClick={onDelete}
                 >
                   <Trash2 />
-                  Supprimer
+                  <span className='max-w-0 overflow-hidden group-hover:max-w-xs duration-300 ease-in-out'>
+                    Supprimer
+                  </span>
                 </Button>
               )}
             </div>
