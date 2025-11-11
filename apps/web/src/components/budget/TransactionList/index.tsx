@@ -72,7 +72,13 @@ const TransactionList = ({ loading, transactions, categories, onTransactionUpdat
             <AccordionTrigger className='p-0 text-base hover:no-underline'>{categoryName}</AccordionTrigger>
             <AccordionContent className='flex flex-col gap-2 p-0'>
               {Object.entries(subCategories).map(([subCategoryName, transactions]) => (
-                <Accordion key={subCategoryName} type='single' collapsible className='w-full p-0 gap-2 first:pt-2'>
+                <Accordion
+                  key={subCategoryName}
+                  type='single'
+                  collapsible
+                  className='w-full p-0 gap-2 first:pt-2'
+                  {...(Object.keys(subCategories).length === 1 && { defaultValue: subCategoryName })}
+                >
                   <AccordionItem key={subCategoryName} value={subCategoryName} className='border-b-0'>
                     <AccordionTrigger className='p-0 pl-2 text-base hover:no-underline'>
                       {subCategoryName}
