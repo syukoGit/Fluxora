@@ -70,7 +70,7 @@ const TransactionList = ({ loading, transactions, categories, onTransactionUpdat
                   <AccordionTrigger className='p-0 pl-2 text-base hover:no-underline'>
                     {subCategoryName}
                   </AccordionTrigger>
-                  <AccordionContent className='w-full p-0 pl-4 gap-2 first:pt-2 last:pb-2'>
+                  <AccordionContent className='w-full p-0 gap-2 first:pt-2 last:pb-2 flex flex-col'>
                     {transactions.map((transaction) => (
                       <TransactionListElement
                         key={transaction.id}
