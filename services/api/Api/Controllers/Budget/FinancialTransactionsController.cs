@@ -171,4 +171,35 @@ public class FinancialTransactionsController(
             return Forbid();
         }
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteFinancialTransactionAsync([FromRoute] Guid id)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                 ?? throw new Exception("User ID not found"));
+
+            var transaction = await dbContext.Set<FinancialTransaction>()
+                                             .FirstOrDefaultAsync(ft => ft.Id == id && ft.UserId == userId);
+
+            if (transaction == null)
+            {
+                return NotFound();
+            }
+
+            dbContext.Set<FinancialTransaction>().Remove(transaction);
+            await dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error deleting financial transaction. {Message}", ex.Message);
+            return Forbid();
+        }
+    }
 }
