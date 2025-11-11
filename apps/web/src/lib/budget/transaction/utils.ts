@@ -3,7 +3,9 @@ import { CategoryDto, TransactionDto, TransactionNestedMap } from './types';
 /**
  * Sorts transactions by date (most recent first) and categories/subcategories alphabetically
  */
-export function sortTransactionNestedMap(categoryMap: TransactionNestedMap): TransactionNestedMap {
+export function sortCategorizedTransactions(
+  categoryMap: Omit<TransactionNestedMap, 'Uncategorized'>
+): Omit<TransactionNestedMap, 'Uncategorized'> {
   // Sort transactions by date (most recent first) within each subcategory
   Object.keys(categoryMap).forEach((categoryName) => {
     Object.keys(categoryMap[categoryName]!).forEach((subCategoryName) => {
@@ -42,16 +44,14 @@ export function mapTransactionDtosToCategories(
     const category = categories.find((cat) => cat.id == transaction.categoryId) ?? 'Uncategorized';
 
     if (category === 'Uncategorized') {
-      if (!categoryMap['Uncategorized']) {
-        categoryMap['Uncategorized'] = {
-          Uncategorized: [],
-        };
+      if (!categoryMap.Uncategorized) {
+        categoryMap.Uncategorized = [];
       }
 
-      categoryMap['Uncategorized']['Uncategorized']!.push(transaction);
+      categoryMap.Uncategorized.push(transaction);
     } else {
       const subCategory =
-        category.subCategories?.find((sub) => sub.id === transaction.subCategoryId)?.name ?? 'Uncategorized';
+        category.subCategories?.find((sub) => sub.id === transaction.subCategoryId)?.name ?? 'Non catégorisé';
 
       if (!categoryMap[category.name]) {
         categoryMap[category.name] = {};
@@ -65,5 +65,5 @@ export function mapTransactionDtosToCategories(
     }
   });
 
-  return sortTransactionNestedMap(categoryMap);
+  return categoryMap;
 }

@@ -27,4 +27,6 @@ export type TransactionNestedMap = {
   [key: string]: {
     [key: string]: TransactionDto[];
   };
+} & {
+  Uncategorized?: TransactionDto[];
 };
