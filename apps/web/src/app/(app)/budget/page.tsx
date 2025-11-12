@@ -9,12 +9,14 @@ import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import TransactionDialog from '@/components/budget/TransactionList/TransactionDialog';
+import TransactionsChart from '@/components/budget/Charts/TransactionsChart';
 
 export default function BudgetPage() {
   const [transactions, setTransactions] = useState<TransactionDto[]>([]);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
 
   const fetchTransactions = async () => {
     try {
@@ -34,6 +36,12 @@ export default function BudgetPage() {
   useEffect(() => {
     fetchTransactions();
   }, []);
+
+  const filteredTransactions = activeCategoryId
+    ? transactions.filter((transaction) => transaction.categoryId === activeCategoryId)
+    : transactions;
+  const negativeTransactions = filteredTransactions.filter((transaction) => transaction.amount < 0);
+  const positiveTransactions = filteredTransactions.filter((transaction) => transaction.amount >= 0);
 
   return (
     <div className='h-full w-full grid grid-cols-2 grid-rows-2 place-items-center *:p-3'>
@@ -63,6 +71,20 @@ export default function BudgetPage() {
           onTransactionUpdated={fetchTransactions}
         />
       </div>
+      <TransactionsChart
+        transactions={negativeTransactions}
+        categories={categories}
+        activeCategoryId={activeCategoryId}
+        setActiveCategoryId={setActiveCategoryId}
+        baseColor='--destructive'
+      />
+      <TransactionsChart
+        transactions={positiveTransactions}
+        categories={categories}
+        activeCategoryId={activeCategoryId}
+        setActiveCategoryId={setActiveCategoryId}
+        baseColor='--success'
+      />
     </div>
   );
 }
