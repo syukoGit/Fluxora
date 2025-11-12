@@ -26,10 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}
-      >
+    <html lang='en' suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}>
         <ThemeProvider>
           <AuthProvider>
             <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
