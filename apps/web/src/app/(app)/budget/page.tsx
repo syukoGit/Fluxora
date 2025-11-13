@@ -44,9 +44,26 @@ export default function BudgetPage() {
   const positiveTransactions = filteredTransactions.filter((transaction) => transaction.amount >= 0);
 
   return (
-    <div className='h-full w-full grid grid-cols-2 grid-rows-2 place-items-center *:p-3'>
-      <div className='bg-primary/10 p-6 rounded-lg shadow-md w-64 h-40 flex flex-col items-center justify-center'>
-        <h2 className='text-lg font-semibold mb-2'>Diagramme de Sankey</h2>
+    <div className='h-full w-full grid grid-cols-2 grid-rows-2 place-items-stretch *:p-3'>
+      <div className='flex flex-row w-full min-w-0 gap-4 overflow-hidden items-center justify-center'>
+        <TransactionsChart
+          transactions={positiveTransactions}
+          categories={categories}
+          activeCategoryId={activeCategoryId}
+          setActiveCategoryId={setActiveCategoryId}
+          baseColor='--success'
+          heading='Revenus'
+          className='flex-1 min-w-0'
+        />
+        <TransactionsChart
+          transactions={negativeTransactions}
+          categories={categories}
+          activeCategoryId={activeCategoryId}
+          setActiveCategoryId={setActiveCategoryId}
+          baseColor='--destructive'
+          heading='Dépenses'
+          className='flex-1 min-w-0'
+        />
       </div>
       <div className='h-full w-full flex flex-col items-end gap-2'>
         <ButtonGroup>
@@ -71,20 +88,9 @@ export default function BudgetPage() {
           onTransactionUpdated={fetchTransactions}
         />
       </div>
-      <TransactionsChart
-        transactions={negativeTransactions}
-        categories={categories}
-        activeCategoryId={activeCategoryId}
-        setActiveCategoryId={setActiveCategoryId}
-        baseColor='--destructive'
-      />
-      <TransactionsChart
-        transactions={positiveTransactions}
-        categories={categories}
-        activeCategoryId={activeCategoryId}
-        setActiveCategoryId={setActiveCategoryId}
-        baseColor='--success'
-      />
+      <div className='bg-primary/10 p-6 rounded-lg shadow-md w-64 h-40 flex flex-col items-center justify-center'>
+        <h2 className='text-lg font-semibold mb-2'>Diagramme de Sankey</h2>
+      </div>
     </div>
   );
 }
