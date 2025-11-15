@@ -13,6 +13,8 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   categories: CategoryDto[];
   activeCategoryId?: string | null;
   setActiveCategoryId?: (categoryId: string | null) => void;
+  activeSubCategoryId?: string | null;
+  setActiveSubCategoryId?: (subCategoryId: string | null) => void;
   baseColor?: string;
   heading?: React.ReactNode;
 }
@@ -22,6 +24,8 @@ const TransactionsChart = ({
   categories,
   activeCategoryId,
   setActiveCategoryId,
+  activeSubCategoryId,
+  setActiveSubCategoryId,
   baseColor,
   heading,
   ...props
@@ -30,12 +34,12 @@ const TransactionsChart = ({
   const [chartConfig, setChartConfig] = useState<ChartConfig>({});
 
   useEffect(() => {
-    const data = getPieChartData(transactions, categories, activeCategoryId, baseColor);
-    const config = getPieChartConfig(data, categories, activeCategoryId);
+    const data = getPieChartData(transactions, categories, activeCategoryId, activeSubCategoryId, baseColor);
+    const config = getPieChartConfig(data, transactions, categories, activeCategoryId, activeSubCategoryId);
 
     setChartData(data);
     setChartConfig(config);
-  }, [transactions, categories, activeCategoryId, baseColor]);
+  }, [transactions, categories, activeCategoryId, activeSubCategoryId, baseColor]);
 
   const { className, ...rest } = props;
 
@@ -55,15 +59,22 @@ const TransactionsChart = ({
           <Pie
             data={chartData}
             dataKey='amount'
-            nameKey='categoryId'
+            nameKey='id'
             innerRadius={60}
             strokeWidth={5}
             activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
               <Sector {...props} outerRadius={outerRadius + 10} />
             )}
             onClick={(data) => {
-              if (!activeCategoryId && data && data.categoryId) {
-                setActiveCategoryId?.(data.categoryId);
+              if (!data?.id) return;
+
+              if (!activeCategoryId) {
+                setActiveCategoryId?.(data.id);
+                setActiveSubCategoryId?.(null);
+              } else if (activeCategoryId && !activeSubCategoryId) {
+                if (activeCategoryId !== 'uncategorized') {
+                  setActiveSubCategoryId?.(data.id);
+                }
               }
             }}
           />

@@ -17,6 +17,7 @@ export default function BudgetPage() {
   const [loading, setLoading] = useState(true);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [activeSubCategoryId, setActiveSubCategoryId] = useState<string | null>(null);
 
   const fetchTransactions = async () => {
     try {
@@ -51,6 +52,8 @@ export default function BudgetPage() {
           categories={categories}
           activeCategoryId={activeCategoryId}
           setActiveCategoryId={setActiveCategoryId}
+          activeSubCategoryId={activeSubCategoryId}
+          setActiveSubCategoryId={setActiveSubCategoryId}
           baseColor='--success'
           heading='Revenus'
           className='flex-1 min-w-0'
@@ -60,6 +63,8 @@ export default function BudgetPage() {
           categories={categories}
           activeCategoryId={activeCategoryId}
           setActiveCategoryId={setActiveCategoryId}
+          activeSubCategoryId={activeSubCategoryId}
+          setActiveSubCategoryId={setActiveSubCategoryId}
           baseColor='--destructive'
           heading='Dépenses'
           className='flex-1 min-w-0'
