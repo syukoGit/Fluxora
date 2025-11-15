@@ -2,10 +2,9 @@
 
 import TransactionList from '@/components/budget/TransactionList';
 import { Button } from '@/components/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
 import { apiClient } from '@/lib/api/client';
 import { CategoryDto, TransactionDto } from '@/lib/budget/transaction/types';
-import { Plus } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import TransactionDialog from '@/components/budget/TransactionList/TransactionDialog';
@@ -38,15 +37,52 @@ export default function BudgetPage() {
     fetchTransactions();
   }, []);
 
+  const resetChartFilters = () => {
+    if (activeSubCategoryId) {
+      setActiveSubCategoryId(null);
+    } else if (activeCategoryId) {
+      setActiveCategoryId(null);
+    }
+  };
+
   const filteredTransactions = activeCategoryId
-    ? transactions.filter((transaction) => transaction.categoryId === activeCategoryId)
+    ? transactions.filter(
+        (transaction) =>
+          transaction.categoryId === activeCategoryId ||
+          (activeCategoryId === 'uncategorized' && !transaction.categoryId)
+      )
     : transactions;
   const negativeTransactions = filteredTransactions.filter((transaction) => transaction.amount < 0);
   const positiveTransactions = filteredTransactions.filter((transaction) => transaction.amount >= 0);
 
+  console.log('All Transactions:', activeCategoryId);
+  console.log('Filtered Transactions:', filteredTransactions);
+
   return (
-    <div className='h-full w-full grid grid-cols-2 grid-rows-2 place-items-stretch *:p-3'>
-      <div className='flex flex-row w-full min-w-0 gap-4 overflow-hidden items-center justify-center'>
+    <div className='h-full w-full grid grid-cols-2 grid-rows-[auto_1fr_1fr] place-items-stretch gap-2 p-2'>
+      <div className='flex justify-end'>
+        {(activeCategoryId || activeSubCategoryId) && (
+          <Button variant='outline' onClick={resetChartFilters}>
+            <ArrowLeft />
+          </Button>
+        )}
+      </div>
+      <div className='flex justify-end'>
+        <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant='outline'>
+              <Plus />
+            </Button>
+          </DialogTrigger>
+          <TransactionDialog
+            categories={categories}
+            open={addDialogOpen}
+            setOpen={setAddDialogOpen}
+            onSuccess={fetchTransactions}
+          />
+        </Dialog>
+      </div>
+      <div className='flex flex-row h-full w-full min-w-0 gap-4 overflow-hidden items-center justify-center'>
         <TransactionsChart
           transactions={positiveTransactions}
           categories={categories}
@@ -71,21 +107,6 @@ export default function BudgetPage() {
         />
       </div>
       <div className='h-full w-full flex flex-col items-end gap-2'>
-        <ButtonGroup>
-          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant='outline'>
-                <Plus />
-              </Button>
-            </DialogTrigger>
-            <TransactionDialog
-              categories={categories}
-              open={addDialogOpen}
-              setOpen={setAddDialogOpen}
-              onSuccess={fetchTransactions}
-            />
-          </Dialog>
-        </ButtonGroup>
         <TransactionList
           loading={loading}
           transactions={transactions}
