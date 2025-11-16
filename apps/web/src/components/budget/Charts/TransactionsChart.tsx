@@ -1,9 +1,11 @@
 'use client';
 
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Empty, EmptyDescription, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { ChartData, getChartData as getPieChartData, getPieChartConfig } from '@/lib/budget/transaction/chartsUtils';
 import { CategoryDto, TransactionDto } from '@/lib/budget/transaction/types';
 import { cn } from '@/lib/utils';
+import { PieChart as PieChartIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Pie, PieChart, Sector } from 'recharts';
 import { PieSectorDataItem } from 'recharts/types/polar/Pie';
@@ -43,43 +45,68 @@ const TransactionsChart = ({
 
   const { className, ...rest } = props;
 
-  if (chartData.length === 0) {
-    return <></>;
-  }
+  let activeCategoryName: string | null = null;
+  let activeSubCategoryName: string | null = null;
 
+  if (activeCategoryId) {
+    const category = categories.find((cat) => cat.id === activeCategoryId);
+    activeCategoryName = category ? category.name : '';
+
+    if (activeSubCategoryId && category?.subCategories) {
+      const subCategory = category.subCategories.find((subCat) => subCat.id === activeSubCategoryId);
+      activeSubCategoryName = subCategory ? subCategory.name : '';
+    }
+  }
   return (
     <div className={cn('flex w-full min-w-0 flex-col items-center', className)} {...rest}>
       {heading ? <div className='mb-1 text-center text-sm font-medium text-muted-foreground'>{heading}</div> : null}
-      <ChartContainer config={chartConfig} className={cn('w-full aspect-square max-h-[400px]')}>
-        <PieChart>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel valueFormatter={(value) => `${value} €`} />}
-          />
-          <Pie
-            data={chartData}
-            dataKey='amount'
-            nameKey='id'
-            innerRadius={60}
-            strokeWidth={5}
-            activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
-              <Sector {...props} outerRadius={outerRadius + 10} />
-            )}
-            onClick={(data) => {
-              if (!data?.id) return;
+      {chartData.length === 0 ? (
+        <Empty className='w-full aspect-square max-h-[400px]'>
+          <EmptyMedia variant='icon'>
+            <PieChartIcon />
+          </EmptyMedia>
+          <EmptyTitle>Pas de données</EmptyTitle>
+          <EmptyDescription>
+            Aucune transaction{' '}
+            {activeSubCategoryName
+              ? `dans la sous-catégorie ${activeSubCategoryName}`
+              : activeCategoryName
+                ? `dans la catégorie ${activeCategoryName}`
+                : ''}
+          </EmptyDescription>
+        </Empty>
+      ) : (
+        <ChartContainer config={chartConfig} className={cn('w-full aspect-square max-h-[400px]')}>
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel valueFormatter={(value) => `${value} €`} />}
+            />
+            <Pie
+              data={chartData}
+              dataKey='amount'
+              nameKey='id'
+              innerRadius={60}
+              strokeWidth={5}
+              activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
+                <Sector {...props} outerRadius={outerRadius + 10} />
+              )}
+              onClick={(data) => {
+                if (!data?.id) return;
 
-              if (!activeCategoryId) {
-                setActiveCategoryId?.(data.id);
-                setActiveSubCategoryId?.(null);
-              } else if (activeCategoryId && !activeSubCategoryId) {
-                if (activeCategoryId !== 'uncategorized') {
-                  setActiveSubCategoryId?.(data.id);
+                if (!activeCategoryId) {
+                  setActiveCategoryId?.(data.id);
+                  setActiveSubCategoryId?.(null);
+                } else if (activeCategoryId && !activeSubCategoryId) {
+                  if (activeCategoryId !== 'uncategorized') {
+                    setActiveSubCategoryId?.(data.id);
+                  }
                 }
-              }
-            }}
-          />
-        </PieChart>
-      </ChartContainer>
+              }}
+            />
+          </PieChart>
+        </ChartContainer>
+      )}
     </div>
   );
 };
