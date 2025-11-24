@@ -55,8 +55,6 @@ export default function BudgetPage() {
   const negativeTransactions = filteredTransactions.filter((transaction) => transaction.amount < 0);
   const positiveTransactions = filteredTransactions.filter((transaction) => transaction.amount >= 0);
 
-  console.log('All Transactions:', activeCategoryId);
-  console.log('Filtered Transactions:', filteredTransactions);
 
   return (
     <div className='h-full w-full grid grid-cols-2 grid-rows-[auto_1fr_1fr] place-items-stretch gap-2 p-2'>
