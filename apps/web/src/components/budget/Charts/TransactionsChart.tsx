@@ -34,6 +34,8 @@ const TransactionsChart = ({
 }: Props) => {
   const [chartData, setChartData] = useState<ChartData>([]);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+  const [innerRadius, setInnerRadius] = useState<number>(30);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const data = getPieChartData(transactions, categories, activeCategoryId, activeSubCategoryId, baseColor);
@@ -42,6 +44,22 @@ const TransactionsChart = ({
     setChartData(data);
     setChartConfig(config);
   }, [transactions, categories, activeCategoryId, activeSubCategoryId, baseColor]);
+
+  useEffect(() => {
+    const updateInnerRadius = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+
+        const calculatedRadius = Math.min(Math.max(width * 0.15, 20), 60);
+        setInnerRadius(calculatedRadius);
+      }
+    };
+
+    updateInnerRadius();
+    window.addEventListener('resize', updateInnerRadius);
+
+    return () => window.removeEventListener('resize', updateInnerRadius);
+  }, []);
 
   const { className, ...rest } = props;
 
@@ -58,7 +76,7 @@ const TransactionsChart = ({
     }
   }
   return (
-    <div className={cn('flex w-full min-w-0 flex-col items-center', className)} {...rest}>
+    <div ref={containerRef} className={cn('flex w-full min-w-0 flex-col items-center', className)} {...rest}>
       {heading ? <div className='mb-1 text-center text-sm font-medium text-muted-foreground'>{heading}</div> : null}
       {chartData.length === 0 ? (
         <Empty className='w-full aspect-square max-h-[400px]'>
@@ -86,7 +104,7 @@ const TransactionsChart = ({
               data={chartData}
               dataKey='amount'
               nameKey='id'
-              innerRadius={60}
+              innerRadius={innerRadius}
               strokeWidth={5}
               activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
                 <Sector {...props} outerRadius={outerRadius + 10} />
