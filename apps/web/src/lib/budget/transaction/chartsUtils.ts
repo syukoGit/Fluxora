@@ -55,7 +55,7 @@ export function getChartData(
     .map(([id, amount]) => ({
       id,
       amount,
-      fill: `hsl(var(${baseColor ?? '--primary'})/${1 - 0.15 * colorIndex++})`,
+      fill: `hsl(var(${baseColor ?? '--primary'})/${Math.max(1 - 0.15 * colorIndex++, 0.1)})`,
     }));
 
   return data;
