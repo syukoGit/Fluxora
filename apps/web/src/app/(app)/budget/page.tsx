@@ -90,6 +90,7 @@ export default function BudgetPage() {
           setActiveCategoryId={setActiveCategoryId}
           activeSubCategoryId={activeSubCategoryId}
           setActiveSubCategoryId={setActiveSubCategoryId}
+          loading={loading}
           baseColor='--success'
           heading='Revenus'
           className='flex-1 min-w-0'
@@ -101,6 +102,7 @@ export default function BudgetPage() {
           setActiveCategoryId={setActiveCategoryId}
           activeSubCategoryId={activeSubCategoryId}
           setActiveSubCategoryId={setActiveSubCategoryId}
+          loading={loading}
           baseColor='--destructive'
           heading='Dépenses'
           className='flex-1 min-w-0'
@@ -116,6 +118,7 @@ export default function BudgetPage() {
       </div>
       <div className='bg-primary/10 p-6 rounded-lg shadow-md w-64 h-40 flex flex-col items-center justify-center'>
         <h2 className='text-lg font-semibold mb-2'>Diagramme de Sankey</h2>
+        <p className='text-center text-sm text-muted-foreground'>TODO</p>
       </div>
     </div>
   );

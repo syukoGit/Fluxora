@@ -9,6 +9,7 @@ import { PieChart as PieChartIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Pie, PieChart, Sector } from 'recharts';
 import { PieSectorDataItem } from 'recharts/types/polar/Pie';
+import LoadingPieChart from './LoadingPieChart';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   transactions: TransactionDto[];
@@ -17,6 +18,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   setActiveCategoryId?: (categoryId: string | null) => void;
   activeSubCategoryId?: string | null;
   setActiveSubCategoryId?: (subCategoryId: string | null) => void;
+  loading?: boolean;
   baseColor?: string;
   heading?: React.ReactNode;
 }
@@ -28,6 +30,7 @@ const TransactionsChart = ({
   setActiveCategoryId,
   activeSubCategoryId,
   setActiveSubCategoryId,
+  loading,
   baseColor,
   heading,
   ...props
@@ -78,7 +81,9 @@ const TransactionsChart = ({
   return (
     <div ref={containerRef} className={cn('flex w-full min-w-0 flex-col items-center', className)} {...rest}>
       {heading ? <div className='mb-1 text-center text-sm font-medium text-muted-foreground'>{heading}</div> : null}
-      {chartData.length === 0 ? (
+      {loading ? (
+        <LoadingPieChart />
+      ) : chartData.length === 0 ? (
         <Empty className='w-full aspect-square max-h-[400px]'>
           <EmptyMedia variant='icon'>
             <PieChartIcon />
