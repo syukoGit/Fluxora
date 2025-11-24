@@ -35,6 +35,7 @@
   --sidebar-accent-foreground: 0 0% 20.5%;
   --sidebar-border: 0 0% 92.2%;
   --sidebar-ring: 0 0% 70.8%;
+  --success: 120 61.5% 49%;
 }
 
 .dark {
@@ -69,6 +70,7 @@
   --sidebar-accent-foreground: 0 0% 98.5%;
   --sidebar-border: 0 0% 26.9%;
   --sidebar-ring: 0 0% 55.6%;
+  --success: 120 61.5% 49%;
 }
 
 @layer base {
