@@ -35,6 +35,7 @@
   --sidebar-accent-foreground: 0 0% 20.5%;
   --sidebar-border: 0 0% 92.2%;
   --sidebar-ring: 0 0% 70.8%;
+  --success: 120 61.5% 49%;
 }
 
 .dark {
@@ -52,7 +53,7 @@
   --muted-foreground: 0 0% 70.8%;
   --accent: 0 0% 26.9%;
   --accent-foreground: 0 0% 98.5%;
-  --destructive: 0 62.8% 30.6%;
+  --destructive: 0 100% 40%;
   --border: 0 0% 26.9%;
   --input: 0 0% 26.9%;
   --ring: 0 0% 55.6%;
@@ -69,6 +70,7 @@
   --sidebar-accent-foreground: 0 0% 98.5%;
   --sidebar-border: 0 0% 26.9%;
   --sidebar-ring: 0 0% 55.6%;
+  --success: 120 61.5% 49%;
 }
 
 @layer base {
@@ -78,5 +80,16 @@
   html,
   body {
     @apply bg-background text-foreground w-full h-full;
+  }
+
+  /* Remove number input spinners */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
   }
 }
