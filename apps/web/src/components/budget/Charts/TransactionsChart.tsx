@@ -120,7 +120,7 @@ const TransactionsChart = ({
                 if (!activeCategoryId) {
                   setActiveCategoryId?.(data.id);
                   setActiveSubCategoryId?.(null);
-                } else if (activeCategoryId && !activeSubCategoryId) {
+                } else if (!activeSubCategoryId) {
                   if (activeCategoryId !== 'uncategorized') {
                     setActiveSubCategoryId?.(data.id);
                   }
