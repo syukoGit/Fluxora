@@ -4,25 +4,18 @@ import React, { createContext, useEffect, useState, useCallback } from 'react';
 import { tokenService } from '@/lib/auth/token';
 import { removeAuthCookie } from '@/lib/auth/cookies';
 import { authApi } from '@/lib/api/auth';
-import type {
-  User,
-  AuthStatus,
-  LoginCredentials,
-  RegisterCredentials,
-} from '@/lib/auth/types';
+import type { User, AuthStatus, LoginCredentials, RegisterCredentials } from '@/lib/auth/types';
 
 interface AuthContextValue {
   user: User | null;
   status: AuthStatus;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   isAuthenticated: boolean;
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined
-);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -75,10 +68,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(response.user);
       setStatus('authenticated');
+      return true;
     } catch (error) {
+      console.error('Login error:', error);
       setStatus('unauthenticated');
       setUser(null);
-      throw error;
+      return false;
     }
   }, []);
 

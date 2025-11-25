@@ -28,28 +28,26 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
     setIsLoading(true);
     setError('');
 
-    try {
-      await login({ username, password });
+    const success = await login({ username, password });
 
-      // Redirect to the original destination or home
-      const redirectTo = searchParams.get('redirect') || '/';
-      router.push(redirectTo);
-    } catch (err) {
+    if (!success) {
       setError("Nom d'utilisateur ou mot de passe incorrect");
-      console.error('Erreur de connexion:', err);
-    } finally {
-      setIsLoading(false);
+    } else {
+      const redirectTo = searchParams.get('redirect') || '/dashboard';
+      router.push(redirectTo);
     }
+
+    setIsLoading(false);
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex-row items-center justify-between">
+    <Card className='w-full'>
+      <CardHeader className='flex-row items-center justify-between'>
         <CardTitle>Connectez-vous à votre compte</CardTitle>
         <button
-          type="button"
+          type='button'
           onClick={onFlip}
-          className="hover:underline text-sm"
+          className='hover:underline text-sm'
           disabled={isLoading}
           tabIndex={-1}
         >
@@ -58,17 +56,17 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-6">
+          <div className='flex flex-col gap-6'>
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+              <div className='bg-red-50 text-red-600 p-3 rounded-md text-sm'>
                 {error}
               </div>
             )}
-            <div className="grid gap-2">
-              <Label htmlFor="username">Nom d&apos;utilisateur</Label>
+            <div className='grid gap-2'>
+              <Label htmlFor='username'>Nom d&apos;utilisateur</Label>
               <Input
-                id="username"
-                type="text"
+                id='username'
+                type='text'
                 placeholder="Nom d'utilisateur"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -77,27 +75,27 @@ export default function LoginCard({ onFlip }: LoginCardProps) {
                 autoFocus
               />
             </div>
-            <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Mot de passe</Label>
+            <div className='grid gap-2'>
+              <div className='flex items-center justify-between'>
+                <Label htmlFor='password'>Mot de passe</Label>
                 <Link
-                  href="/forgot-password"
-                  className="hover:underline text-sm"
+                  href='/forgot-password'
+                  className='hover:underline text-sm'
                   tabIndex={-1}
                 >
                   Mot de passe oublié ?
                 </Link>
               </div>
               <Input
-                id="password"
-                type="password"
+                id='password'
+                type='password'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type='submit' className='w-full' disabled={isLoading}>
               {isLoading ? 'Connexion...' : 'Connexion'}
             </Button>
           </div>

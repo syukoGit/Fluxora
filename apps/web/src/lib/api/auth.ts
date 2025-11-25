@@ -22,14 +22,14 @@ export const authApi = {
     );
 
     // Save tokens with expiry information
-    tokenService.setToken(response.access_token, response.expires_in);
+    tokenService.setToken(response.accessToken, response.expiresIn);
     tokenService.setRefreshToken(
-      response.refresh_token,
-      response.refresh_expires_in
+      response.refreshToken,
+      response.refreshExpiresIn
     );
 
     // Sync cookie for middleware route protection
-    setAuthCookie(response.access_token, response.expires_in);
+    setAuthCookie(response.accessToken, response.expiresIn);
 
     return returnAuthResponse();
   },
@@ -65,14 +65,14 @@ export const authApi = {
     );
 
     // Save tokens with expiry information
-    tokenService.setToken(response.access_token, response.expires_in);
+    tokenService.setToken(response.accessToken, response.expiresIn);
     tokenService.setRefreshToken(
-      response.refresh_token,
-      response.refresh_expires_in
+      response.refreshToken,
+      response.refreshExpiresIn
     );
 
     // Sync cookie for middleware route protection
-    setAuthCookie(response.access_token, response.expires_in);
+    setAuthCookie(response.accessToken, response.expiresIn);
 
     return returnAuthResponse();
   },
@@ -95,14 +95,14 @@ export const authApi = {
     );
 
     // Save new tokens with expiry information
-    tokenService.setToken(response.access_token, response.expires_in);
+    tokenService.setToken(response.accessToken, response.expiresIn);
     tokenService.setRefreshToken(
-      response.refresh_token,
-      response.refresh_expires_in
+      response.refreshToken,
+      response.refreshExpiresIn
     );
 
     // Sync cookie for middleware route protection
-    setAuthCookie(response.access_token, response.expires_in);
+    setAuthCookie(response.accessToken, response.expiresIn);
 
     return returnAuthResponse();
   },
